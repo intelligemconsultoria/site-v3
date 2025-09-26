@@ -58,6 +58,9 @@
       },
       "scripts": {
           "dev": "vite",
-          "build": "vite build"
+          "build": "vite build",
+          "netlify:dev": "netlify dev",
+          "netlify:build": "npm run build",
+          "deploy": "netlify deploy --prod"
       }
   }

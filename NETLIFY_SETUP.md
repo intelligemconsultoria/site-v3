@@ -25,10 +25,18 @@ netlify login
 No painel do Netlify, vá em **Site settings > Environment variables** e adicione:
 
 ```
-SUPABASE_URL=sua_url_do_supabase
+# Para o frontend (Vite)
+VITE_SUPABASE_URL=https://seu-projeto.supabase.co
+VITE_SUPABASE_ANON_KEY=sua_chave_anonima_do_supabase
+VITE_RESEND_API_KEY=sua_chave_do_resend (opcional)
+
+# Para as funções Netlify (backend)
+SUPABASE_URL=https://seu-projeto.supabase.co
 SUPABASE_ANON_KEY=sua_chave_anonima_do_supabase
 RESEND_API_KEY=sua_chave_do_resend (opcional)
 ```
+
+**Importante**: As variáveis `VITE_*` são para o frontend e as variáveis sem prefixo são para as funções serverless.
 
 ### 4. Deploy Local
 

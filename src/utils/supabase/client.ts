@@ -15,8 +15,9 @@ export function getSupabaseClient(): SupabaseClient {
   }
 
   // Create single instance for all operations (auth and data)
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || `https://${projectId}.supabase.co`;
   supabaseInstance = createClient(
-    `https://${projectId}.supabase.co`,
+    supabaseUrl,
     publicAnonKey,
     {
       auth: {

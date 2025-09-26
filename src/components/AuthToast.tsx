@@ -1,0 +1,1 @@
+// This component has been removed to prevent multiple Supabase client instances

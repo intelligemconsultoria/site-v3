@@ -215,8 +215,8 @@ export function RichTextEditor({
     {
       group: 'insert',
       buttons: [
-        { icon: Quote, command: 'formatBlock', value: 'blockquote', tooltip: 'Citação' },
-        { icon: Code, command: 'formatBlock', value: 'pre', tooltip: 'Código' }
+        { icon: Quote, command: 'formatBlock', value: 'blockquote', tooltip: 'Citação', key: 'formatBlock-quote' },
+        { icon: Code, command: 'formatBlock', value: 'pre', tooltip: 'Código', key: 'formatBlock-code' }
       ]
     },
     {
@@ -257,7 +257,7 @@ export function RichTextEditor({
             <React.Fragment key={group.group}>
               {group.buttons.map((button) => (
                 <Button
-                  key={button.command}
+                  key={button.key || button.command}
                   variant="ghost"
                   size="sm"
                   className="h-8 w-8 p-0 hover:bg-emerald-400/10 hover:text-emerald-400"
@@ -472,7 +472,7 @@ export function RichTextEditor({
         data-placeholder={placeholder}
       />
 
-      <style jsx>{`
+      <style jsx="true">{`
         [contenteditable]:empty:before {
           content: attr(data-placeholder);
           color: rgb(255 255 255 / 0.4);

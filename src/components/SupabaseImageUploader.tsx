@@ -177,7 +177,7 @@ export function SupabaseImageUploader({
               src={previewUrl}
               alt={`Preview de ${imageName}`}
               className={`w-full h-full rounded-lg ${
-                imageKey.toLowerCase().includes('logo') 
+                imageKey?.toLowerCase().includes('logo') 
                   ? 'object-contain bg-white/5 p-3' 
                   : 'object-cover'
               }`}

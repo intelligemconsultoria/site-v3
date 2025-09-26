@@ -153,6 +153,16 @@ export function ArticleEditor({ articleId, onBack }: ArticleEditorProps) {
       setHasChanges(false);
     } catch (error) {
       console.error('Erro no autosave:', error);
+      // Log detalhado do erro
+      if (error && typeof error === 'object' && 'message' in error) {
+        console.error('Detalhes do erro:', {
+          message: (error as any).message,
+          code: (error as any).code,
+          details: (error as any).details,
+          hint: (error as any).hint,
+          status: (error as any).status
+        });
+      }
     } finally {
       setIsSaving(false);
     }

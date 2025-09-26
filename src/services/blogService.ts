@@ -1,4 +1,5 @@
 import { getSupabaseClient } from '../utils/supabase/client';
+import { logger } from '../utils/logger';
 
 // Blog Service - Conectado ao Supabase
 export interface BlogArticle {
@@ -37,6 +38,13 @@ export interface NewsletterSubscriber {
 
 class BlogService {
   private supabase = getSupabaseClient();
+
+  constructor() {
+    logger.debug('BLOG_SERVICE', 'BlogService inicializado', {
+      supabaseUrl: import.meta.env.VITE_SUPABASE_URL,
+      hasAnonKey: !!import.meta.env.VITE_SUPABASE_ANON_KEY
+    });
+  }
 
   // Função auxiliar para gerar slug
   private generateSlug(title: string): string {
@@ -193,27 +201,40 @@ class BlogService {
 
   async createArticle(article: Omit<BlogArticle, 'id' | 'created_at' | 'updated_at'>): Promise<BlogArticle> {
     try {
+      logger.debug('BLOG_SERVICE', 'Iniciando criação de artigo', { article: { ...article, content: '[CONTENT_HIDDEN]' } });
+      
       // Gerar slug se não fornecido
       const slug = article.slug || this.generateSlug(article.title);
+      logger.debug('BLOG_SERVICE', 'Slug gerado', { slug });
       
       // Calcular tempo de leitura se não fornecido
       const read_time = article.read_time || this.calculateReadTime(article.content);
+      logger.debug('BLOG_SERVICE', 'Tempo de leitura calculado', { read_time });
+
+      const articleData = {
+        ...article,
+        slug,
+        read_time,
+        view_count: 0
+      };
+
+      logger.supabaseRequest('createArticle', 'blog_articles', 'INSERT', articleData);
 
       const { data, error } = await this.supabase
         .from('blog_articles')
-        .insert([{
-          ...article,
-          slug,
-          read_time,
-          view_count: 0
-        }])
+        .insert([articleData])
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        logger.supabaseError('createArticle', error, { articleData });
+        throw error;
+      }
+
+      logger.supabaseSuccess('createArticle', { articleId: data?.id });
       return data;
     } catch (error) {
-      console.error('Erro ao criar artigo:', error);
+      logger.error('BLOG_SERVICE', 'Erro ao criar artigo', error as Error, { article: { ...article, content: '[CONTENT_HIDDEN]' } });
       throw error;
     }
   }

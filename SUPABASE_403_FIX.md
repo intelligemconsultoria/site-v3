@@ -40,7 +40,16 @@ Execute o arquivo `supabase_rls_fix.sql` no **SQL Editor** do Supabase Dashboard
 3. Vá em **SQL Editor**
 
 ### **Passo 2: Executar Script de Correção**
-Copie e cole o conteúdo do arquivo `supabase_rls_fix.sql` no SQL Editor e execute.
+Copie e cole o conteúdo do arquivo `supabase_rls_fix_complete.sql` no SQL Editor e execute.
+
+**⚠️ IMPORTANTE**: Use o arquivo `supabase_rls_fix_complete.sql` que inclui todas as tabelas:
+- `blog_articles`
+- `case_studies` ← **Nova tabela identificada**
+- `newsletter_subscribers`
+- `contact_submissions`
+- `site_settings`
+- `meeting_requests`
+- `site_images`
 
 ### **Passo 3: Verificar Políticas**
 Execute esta query para verificar as políticas:

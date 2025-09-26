@@ -43,7 +43,15 @@ export function SupabaseDebugPanel() {
         .from('information_schema.tables')
         .select('table_name')
         .eq('table_schema', 'public')
-        .in('table_name', ['blog_articles', 'newsletter_subscribers', 'site_images', 'meetings', 'cases']);
+        .in('table_name', [
+          'blog_articles', 
+          'newsletter_subscribers', 
+          'case_studies',
+          'contact_submissions',
+          'site_settings',
+          'meeting_requests',
+          'site_images'
+        ]);
 
       // Verificar RLS status
       const rlsStatus: Record<string, boolean> = {};
@@ -123,6 +131,48 @@ export function SupabaseDebugPanel() {
       }
     } catch (error) {
       logger.error('SUPABASE_DEBUG', 'Erro no teste de inserção', error as Error);
+      alert(`Erro: ${(error as Error).message}`);
+    }
+  };
+
+  const testCaseStudyInsert = async () => {
+    logger.debug('SUPABASE_DEBUG', 'Testando inserção de case study');
+    
+    try {
+      const testCase = {
+        title: 'Case de Teste',
+        excerpt: 'Este é um case de teste para verificar permissões',
+        content: 'Conteúdo do case de teste',
+        client: 'Cliente Teste',
+        industry: 'Tecnologia',
+        challenge: 'Desafio de teste',
+        solution: 'Solução de teste',
+        results: 'Resultados de teste',
+        category: 'teste',
+        metrics: 'Métricas de teste',
+        slug: 'case-teste-' + Date.now(),
+        published: false,
+        featured: false,
+        tags: ['teste'],
+        image_url: '',
+        view_count: 0
+      };
+
+      const { data, error } = await supabase
+        .from('case_studies')
+        .insert([testCase])
+        .select()
+        .single();
+
+      if (error) {
+        logger.supabaseError('testCaseStudyInsert', error, { testCase });
+        alert(`Erro ao inserir case study: ${error.message}`);
+      } else {
+        logger.supabaseSuccess('testCaseStudyInsert', { caseId: data?.id });
+        alert('Case study de teste inserido com sucesso!');
+      }
+    } catch (error) {
+      logger.error('SUPABASE_DEBUG', 'Erro no teste de inserção de case study', error as Error);
       alert(`Erro: ${(error as Error).message}`);
     }
   };
@@ -228,7 +278,11 @@ export function SupabaseDebugPanel() {
             </Button>
             
             <Button onClick={testBlogInsert} variant="outline">
-              Testar Inserção
+              Testar Blog
+            </Button>
+            
+            <Button onClick={testCaseStudyInsert} variant="outline">
+              Testar Cases
             </Button>
             
             <Button onClick={exportLogs} variant="outline">

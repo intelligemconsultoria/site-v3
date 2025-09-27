@@ -40,7 +40,7 @@ export function HeroSection() {
         <div className="space-y-8">
           <h1 className="text-5xl lg:text-6xl leading-tight">
             <span className="bg-gradient-to-r from-emerald-400 via-blue-400 to-purple-400 bg-clip-text text-transparent drop-shadow-2xl">
-              Transformando dados 
+              Transformando dados em
             </span>
             <br />
             <span className="text-foreground">

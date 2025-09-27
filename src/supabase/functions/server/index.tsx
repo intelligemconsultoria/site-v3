@@ -497,11 +497,11 @@ app.post("/make-server-a91235ef/send-email", async (c) => {
       const { error: logError } = await supabase
         .from('email_notifications')
         .insert({
-          recipient: to,
+          recipient_email: to,
           subject,
-          type: 'meeting_notification',
+          email_type: 'meeting_notification',
           status: 'sent',
-          external_id: emailResult.data?.id,
+          provider_message_id: emailResult.data?.id,
           metadata: {
             from: emailData.from,
             timestamp: new Date().toISOString()
@@ -588,24 +588,24 @@ app.post("/make-server-a91235ef/meeting-request", async (c) => {
         
         if (internalResult.data?.id) {
           emailLogs.push({
-            recipient: 'intelligemconsultoria@gmail.com',
+            recipient_email: 'intelligemconsultoria@gmail.com',
             subject: internalEmailData.subject,
-            type: 'internal_notification',
+            email_type: 'meeting_notification',
             status: 'sent',
-            external_id: internalResult.data.id,
-            related_id: meeting.id,
+            provider_message_id: internalResult.data.id,
+            related_meeting_id: meeting.id,
             metadata: { type: 'meeting_request' }
           });
         }
 
         if (clientResult.data?.id) {
           emailLogs.push({
-            recipient: meetingData.email,
+            recipient_email: meetingData.email,
             subject: clientEmailData.subject,
-            type: 'client_confirmation',
+            email_type: 'meeting_confirmation',
             status: 'sent',
-            external_id: clientResult.data.id,
-            related_id: meeting.id,
+            provider_message_id: clientResult.data.id,
+            related_meeting_id: meeting.id,
             metadata: { type: 'meeting_request' }
           });
         }

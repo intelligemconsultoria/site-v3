@@ -1,38 +1,20 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { MeetingRequestModal } from "./MeetingRequestModal";
 import { useMeetingModal } from "../hooks/useMeetingModal";
+import { useImageCacheBust } from "../hooks/useImageCacheBust";
 
 export function HeroSection() {
   const { isOpen, openGeneralModal, closeModal, currentSolution, currentSource } = useMeetingModal({
     sourcePage: 'hero-section'
   });
   
-  const [heroImage, setHeroImage] = useState(
+  // Usar hook personalizado para cache-busting automático
+  const heroImage = useImageCacheBust(
+    'hero-main',
     "https://images.unsplash.com/photo-1758657286956-f944e1d2e75a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxkYXRhJTIwdmlzdWFsaXphdGlvbiUyMG5ldHdvcmslMjB0ZWNobm9sb2d5fGVufDF8fHx8MTc1ODkwNDE2M3ww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
   );
-
-  useEffect(() => {
-    // Load custom hero image from localStorage
-    const savedImage = localStorage.getItem('site-image-hero-main');
-    if (savedImage) {
-      setHeroImage(savedImage);
-    }
-
-    // Listen for image updates
-    const handleImageUpdate = (event: CustomEvent) => {
-      const newImage = event.detail['hero-main'];
-      if (newImage) {
-        setHeroImage(newImage);
-      }
-    };
-
-    window.addEventListener('site-images-updated', handleImageUpdate as EventListener);
-    return () => {
-      window.removeEventListener('site-images-updated', handleImageUpdate as EventListener);
-    };
-  }, []);
 
   return (
     <section className="relative min-h-screen flex items-center bg-gradient-to-br from-background via-background to-blue-900/20 dark:to-blue-900/20 light:to-emerald-100/30 pt-20">

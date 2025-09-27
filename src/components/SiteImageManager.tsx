@@ -347,6 +347,9 @@ export function SiteImageManager() {
         detail: imageValues 
       }));
       
+      // Disparar evento de refresh para forçar cache-busting
+      window.dispatchEvent(new CustomEvent('site-images-refresh'));
+      
       toast.success('✅ Imagens do site atualizadas com sucesso!');
       setHasChanges(false);
     } catch (error) {

@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { MeetingRequestModal } from "./MeetingRequestModal";
 import { useMeetingModal } from "../hooks/useMeetingModal";
+import { useImageCacheBust } from "../hooks/useImageCacheBust";
 import gemFlowLogo from "figma:asset/5175adeec9ce8271bb85bf293b9214728409a71a.png";
 import gemInsightsLogo from "figma:asset/7dd46db1fefa5288c113180ade65c741fafebcce.png";
 import gemMindLogo from "figma:asset/c856949ab322f91d15b5aaecc11426c61fe0ed10.png";
@@ -21,62 +22,25 @@ export function SolutionsSection({
   const { isOpen, openModal, closeModal, currentSolution, currentSource } = useMeetingModal({
     sourcePage: 'solutions-section'
   });
-  const [solutionLogos, setSolutionLogos] = useState({
-    gemflow: gemFlowLogo,
-    geminsights: gemInsightsLogo,
-    gemmind: gemMindLogo
-  });
+  // Usar hooks de cache-busting para todas as imagens
+  const gemflowLogo = useImageCacheBust('logo-gemflow', gemFlowLogo);
+  const geminsightsLogo = useImageCacheBust('logo-geminsights', gemInsightsLogo);
+  const gemmindLogo = useImageCacheBust('logo-gemmind', gemMindLogo);
+  
+  const gemflowImage = useImageCacheBust(
+    'solution-gemflow-image',
+    "https://images.unsplash.com/photo-1758387933125-5ac945b4e2cd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhdXRvbWF0aW9uJTIwcHJvY2VzcyUyMHRlY2hub2xvZ3l8ZW58MXx8fHwxNzU4NTc5NjU5fDA&ixlib=rb-4.1.0&q=80&w=1080"
+  );
+  const geminsightsImage = useImageCacheBust(
+    'solution-geminsights-image',
+    "https://images.unsplash.com/photo-1551288049-bebda4e38f71?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxidXNpbmVzcyUyMGludGVsbGlnZW5jZSUyMGRhc2hib2FyZHxlbnwxfHx8fDE3NTg1NjkwMTV8MA&ixlib=rb-4.1.0&q=80&w=1080"
+  );
+  const gemmindImage = useImageCacheBust(
+    'solution-gemmind-image',
+    "https://images.unsplash.com/photo-1697577418970-95d99b5a55cf?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhcnRpZmljaWFsJTIwaW50ZWxsaWdlbmNlJTIwdGVjaG5vbG9neXxlbnwxfHx8fDE3NTg0ODA0ODB8MA&ixlib=rb-4.1.0&q=80&w=1080"
+  );
 
-  const [solutionImages, setSolutionImages] = useState({
-    gemflow: "https://images.unsplash.com/photo-1758387933125-5ac945b4e2cd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhdXRvbWF0aW9uJTIwcHJvY2VzcyUyMHRlY2hub2xvZ3l8ZW58MXx8fHwxNzU4NTc5NjU5fDA&ixlib=rb-4.1.0&q=80&w=1080",
-    geminsights: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxidXNpbmVzcyUyMGludGVsbGlnZW5jZSUyMGRhc2hib2FyZHxlbnwxfHx8fDE3NTg1NjkwMTV8MA&ixlib=rb-4.1.0&q=80&w=1080",
-    gemmind: "https://images.unsplash.com/photo-1697577418970-95d99b5a55cf?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhcnRpZmljaWFsJTIwaW50ZWxsaWdlbmNlJTIwdGVjaG5vbG9neXxlbnwxfHx8fDE3NTg0ODA0ODB8MA&ixlib=rb-4.1.0&q=80&w=1080"
-  });
-
-  useEffect(() => {
-    // Load custom logos from localStorage
-    const savedGemFlowLogo = localStorage.getItem('site-image-logo-gemflow');
-    const savedGemInsightsLogo = localStorage.getItem('site-image-logo-geminsights');
-    const savedGemMindLogo = localStorage.getItem('site-image-logo-gemmind');
-
-    setSolutionLogos({
-      gemflow: savedGemFlowLogo || gemFlowLogo,
-      geminsights: savedGemInsightsLogo || gemInsightsLogo,
-      gemmind: savedGemMindLogo || gemMindLogo
-    });
-
-    // Load custom solution images from localStorage
-    const savedGemFlowImage = localStorage.getItem('site-image-solution-gemflow-image');
-    const savedGemInsightsImage = localStorage.getItem('site-image-solution-geminsights-image');
-    const savedGemMindImage = localStorage.getItem('site-image-solution-gemmind-image');
-
-    setSolutionImages({
-      gemflow: savedGemFlowImage || "https://images.unsplash.com/photo-1758387933125-5ac945b4e2cd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhdXRvbWF0aW9uJTIwcHJvY2VzcyUyMHRlY2hub2xvZ3l8ZW58MXx8fHwxNzU4NTc5NjU5fDA&ixlib=rb-4.1.0&q=80&w=1080",
-      geminsights: savedGemInsightsImage || "https://images.unsplash.com/photo-1551288049-bebda4e38f71?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxidXNpbmVzcyUyMGludGVsbGlnZW5jZSUyMGRhc2hib2FyZHxlbnwxfHx8fDE3NTg1NjkwMTV8MA&ixlib=rb-4.1.0&q=80&w=1080",
-      gemmind: savedGemMindImage || "https://images.unsplash.com/photo-1697577418970-95d99b5a55cf?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhcnRpZmljaWFsJTIwaW50ZWxsaWdlbmNlJTIwdGVjaG5vbG9neXxlbnwxfHx8fDE3NTg0ODA0ODB8MA&ixlib=rb-4.1.0&q=80&w=1080"
-    });
-
-    // Listen for image updates
-    const handleImageUpdate = (event: CustomEvent) => {
-      const images = event.detail;
-      setSolutionLogos(prev => ({
-        gemflow: images['logo-gemflow'] || prev.gemflow,
-        geminsights: images['logo-geminsights'] || prev.geminsights,
-        gemmind: images['logo-gemmind'] || prev.gemmind
-      }));
-      
-      setSolutionImages(prev => ({
-        gemflow: images['solution-gemflow-image'] || prev.gemflow,
-        geminsights: images['solution-geminsights-image'] || prev.geminsights,
-        gemmind: images['solution-gemmind-image'] || prev.gemmind
-      }));
-    };
-
-    window.addEventListener('site-images-updated', handleImageUpdate as EventListener);
-    return () => {
-      window.removeEventListener('site-images-updated', handleImageUpdate as EventListener);
-    };
-  }, []);
+  // Os hooks useImageCacheBust já gerenciam o carregamento e atualização das imagens
 
   const solutions = [
     {
@@ -84,27 +48,27 @@ export function SolutionsSection({
       subtitle: "Automação de Processos",
       description: "Integração e automação de dados para otimizar fluxos de trabalho e eliminar tarefas repetitivas.",
       details: "Transforme processos manuais em fluxos automatizados inteligentes. Nossa plataforma conecta sistemas, padroniza dados e cria pipelines robustos que garantem eficiência operacional.",
-      image: solutionImages.gemflow,
+      image: gemflowImage,
       color: "emerald",
-      logo: solutionLogos.gemflow
+      logo: gemflowLogo
     },
     {
       name: "GemInsights",
       subtitle: "Business Intelligence",
       description: "Dashboards e relatórios inteligentes que transformam dados complexos em insights acionáveis.",
       details: "Visualize seus dados como nunca antes. Criamos dashboards interativos e relatórios personalizados que revelam padrões ocultos e orientam decisões estratégicas em tempo real.",
-      image: solutionImages.geminsights,
+      image: geminsightsImage,
       color: "blue",
-      logo: solutionLogos.geminsights
+      logo: geminsightsLogo
     },
     {
       name: "GemMind",
       subtitle: "Inteligência Artificial",
       description: "Modelos preditivos e algoritmos de IA para antecipar tendências e otimizar resultados.",
       details: "O futuro dos seus dados está aqui. Desenvolvemos modelos de machine learning e IA que preveem comportamentos, identificam oportunidades e automatizam decisões complexas.",
-      image: solutionImages.gemmind,
+      image: gemmindImage,
       color: "purple",
-      logo: solutionLogos.gemmind
+      logo: gemmindLogo
     }
   ];
 

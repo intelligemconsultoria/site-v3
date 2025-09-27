@@ -162,7 +162,7 @@ export const imageService = {
   },
 
   // Helper para extrair categoria do nome do arquivo
-  private extractCategoryFromPath(fileName: string): string {
+  extractCategoryFromPath(fileName: string): string {
     const parts = fileName.split('/');
     if (parts.length > 1) {
       return parts[0]; // Primeira parte do path é a categoria

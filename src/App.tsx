@@ -34,6 +34,35 @@ function AppContent() {
   const [currentEditingArticleId, setCurrentEditingArticleId] = useState<string>('');
   const [currentEditingCaseId, setCurrentEditingCaseId] = useState<string>('');
 
+  // Detectar rota da URL e navegar automaticamente
+  useEffect(() => {
+    const path = window.location.pathname;
+    console.log('🔍 [App] Detectando rota:', path);
+    
+    if (path === '/admin') {
+      console.log('✅ [App] Navegando para admin via URL');
+      navigateToAdmin();
+    } else if (path === '/blog') {
+      console.log('✅ [App] Navegando para blog via URL');
+      navigateToBlog();
+    } else if (path === '/cases') {
+      console.log('✅ [App] Navegando para cases via URL');
+      navigateToCases();
+    } else if (path === '/gemflow') {
+      console.log('✅ [App] Navegando para gemflow via URL');
+      navigateToGemFlow();
+    } else if (path === '/geminsights') {
+      console.log('✅ [App] Navegando para geminsights via URL');
+      navigateToGemInsights();
+    } else if (path === '/gemmind') {
+      console.log('✅ [App] Navegando para gemmind via URL');
+      navigateToGemMind();
+    } else if (path === '/') {
+      console.log('✅ [App] Navegando para home via URL');
+      navigateToHome();
+    }
+  }, []);
+
   const navigateToBlog = () => {
     window.scrollTo(0, 0);
     setCurrentPage('blog');

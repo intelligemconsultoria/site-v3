@@ -56,8 +56,6 @@ export function Header({ onNavigateToAdmin, onNavigateToBlog, onNavigateToCases,
             className="w-10 h-10 object-contain"
             width="40"
             height="40"
-            onDoubleClick={onNavigateToAdmin}
-            style={{ cursor: onNavigateToAdmin ? 'pointer' : 'default' }}
           />
           <span className="text-foreground font-semibold text-xl">IntelliGem</span>
         </div>
@@ -72,7 +70,6 @@ export function Header({ onNavigateToAdmin, onNavigateToBlog, onNavigateToCases,
           </a>
           <button 
             onClick={onNavigateToCases}
-            onDoubleClick={onNavigateToCasesAdmin}
             className="text-foreground/80 hover:text-foreground transition-colors cursor-pointer"
           >
             Cases

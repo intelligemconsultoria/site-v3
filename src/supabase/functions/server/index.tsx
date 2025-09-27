@@ -64,7 +64,7 @@ async function requireAuth(request: Request): Promise<{ authorized: boolean; use
 }
 
 // Site images bucket
-const SITE_IMAGES_BUCKET = 'site-images-a91235ef';
+const SITE_IMAGES_BUCKET = 'static-images';
 
 // Create bucket on startup
 async function initializeBuckets() {
@@ -262,24 +262,31 @@ app.post("/make-server-a91235ef/site-images/upload", async (c) => {
 // Get all site images
 app.get("/make-server-a91235ef/site-images", async (c) => {
   try {
-    console.log('Fetching site images...');
+    console.log('🔍 [Edge Function] Fetching site images...');
+    console.log('🔍 [Edge Function] Using bucket:', SITE_IMAGES_BUCKET);
+    
+    // First, try to get images from KV store
     const images = await kv.getByPrefix('site-image:');
-    console.log('Found images:', images.length);
+    console.log('📊 [Edge Function] Found images in KV:', images.length);
     
     if (images.length === 0) {
+      console.log('⚠️ [Edge Function] No images in KV store, returning empty array');
       return c.json([]);
     }
     
+    console.log('🔄 [Edge Function] Processing images...');
     const imagesData = await Promise.all(
       images.map(async (item) => {
         try {
           const metadata = item.value;
-          console.log('Processing image:', item.key, metadata);
+          console.log('🖼️ [Edge Function] Processing image:', item.key, 'metadata:', metadata);
           
           if (!metadata || !metadata.filename) {
-            console.error('Invalid metadata for image:', item.key);
+            console.error('❌ [Edge Function] Invalid metadata for image:', item.key);
             return null;
           }
+          
+          console.log('🔗 [Edge Function] Generating signed URL for:', metadata.filename);
           
           // Generate fresh signed URL
           const { data: signedData, error: signedError } = await supabase.storage
@@ -287,8 +294,15 @@ app.get("/make-server-a91235ef/site-images", async (c) => {
             .createSignedUrl(metadata.filename, 86400);
           
           if (signedError) {
-            console.error('Signed URL error for', metadata.filename, signedError);
+            console.error('❌ [Edge Function] Signed URL error for', metadata.filename, signedError);
+            return {
+              key: item.key.replace('site-image:', ''),
+              ...metadata,
+              publicUrl: metadata.publicUrl || 'https://via.placeholder.com/400x300?text=Image+Not+Found'
+            };
           }
+          
+          console.log('✅ [Edge Function] Generated signed URL for:', metadata.filename);
           
           return {
             key: item.key.replace('site-image:', ''),
@@ -296,7 +310,7 @@ app.get("/make-server-a91235ef/site-images", async (c) => {
             publicUrl: signedData?.signedUrl || metadata.publicUrl
           };
         } catch (itemError) {
-          console.error('Error processing image item:', item.key, itemError);
+          console.error('❌ [Edge Function] Error processing image item:', item.key, itemError);
           return null;
         }
       })
@@ -304,12 +318,18 @@ app.get("/make-server-a91235ef/site-images", async (c) => {
     
     // Filter out null values
     const validImages = imagesData.filter(img => img !== null);
-    console.log('Returning valid images:', validImages.length);
+    console.log('✅ [Edge Function] Returning valid images:', validImages.length);
     
     return c.json(validImages);
   } catch (error) {
-    console.error('Error fetching site images:', error);
-    return c.json({ error: 'Failed to fetch images', details: error.message }, 500);
+    console.error('❌ [Edge Function] Error fetching site images:', error);
+    console.error('❌ [Edge Function] Error details:', error.message);
+    console.error('❌ [Edge Function] Error stack:', error.stack);
+    return c.json({ 
+      error: 'Failed to fetch images', 
+      details: error.message,
+      stack: error.stack 
+    }, 500);
   }
 });
 

@@ -27,6 +27,12 @@ export function SolutionsSection({
     gemmind: gemMindLogo
   });
 
+  const [solutionImages, setSolutionImages] = useState({
+    gemflow: "https://images.unsplash.com/photo-1758387933125-5ac945b4e2cd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhdXRvbWF0aW9uJTIwcHJvY2VzcyUyMHRlY2hub2xvZ3l8ZW58MXx8fHwxNzU4NTc5NjU5fDA&ixlib=rb-4.1.0&q=80&w=1080",
+    geminsights: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxidXNpbmVzcyUyMGludGVsbGlnZW5jZSUyMGRhc2hib2FyZHxlbnwxfHx8fDE3NTg1NjkwMTV8MA&ixlib=rb-4.1.0&q=80&w=1080",
+    gemmind: "https://images.unsplash.com/photo-1697577418970-95d99b5a55cf?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhcnRpZmljaWFsJTIwaW50ZWxsaWdlbmNlJTIwdGVjaG5vbG9neXxlbnwxfHx8fDE3NTg0ODA0ODB8MA&ixlib=rb-4.1.0&q=80&w=1080"
+  });
+
   useEffect(() => {
     // Load custom logos from localStorage
     const savedGemFlowLogo = localStorage.getItem('site-image-logo-gemflow');
@@ -39,13 +45,30 @@ export function SolutionsSection({
       gemmind: savedGemMindLogo || gemMindLogo
     });
 
+    // Load custom solution images from localStorage
+    const savedGemFlowImage = localStorage.getItem('site-image-solution-gemflow-image');
+    const savedGemInsightsImage = localStorage.getItem('site-image-solution-geminsights-image');
+    const savedGemMindImage = localStorage.getItem('site-image-solution-gemmind-image');
+
+    setSolutionImages({
+      gemflow: savedGemFlowImage || "https://images.unsplash.com/photo-1758387933125-5ac945b4e2cd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhdXRvbWF0aW9uJTIwcHJvY2VzcyUyMHRlY2hub2xvZ3l8ZW58MXx8fHwxNzU4NTc5NjU5fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      geminsights: savedGemInsightsImage || "https://images.unsplash.com/photo-1551288049-bebda4e38f71?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxidXNpbmVzcyUyMGludGVsbGlnZW5jZSUyMGRhc2hib2FyZHxlbnwxfHx8fDE3NTg1NjkwMTV8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      gemmind: savedGemMindImage || "https://images.unsplash.com/photo-1697577418970-95d99b5a55cf?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhcnRpZmljaWFsJTIwaW50ZWxsaWdlbmNlJTIwdGVjaG5vbG9neXxlbnwxfHx8fDE3NTg0ODA0ODB8MA&ixlib=rb-4.1.0&q=80&w=1080"
+    });
+
     // Listen for image updates
     const handleImageUpdate = (event: CustomEvent) => {
-      const logos = event.detail;
+      const images = event.detail;
       setSolutionLogos(prev => ({
-        gemflow: logos['logo-gemflow'] || prev.gemflow,
-        geminsights: logos['logo-geminsights'] || prev.geminsights,
-        gemmind: logos['logo-gemmind'] || prev.gemmind
+        gemflow: images['logo-gemflow'] || prev.gemflow,
+        geminsights: images['logo-geminsights'] || prev.geminsights,
+        gemmind: images['logo-gemmind'] || prev.gemmind
+      }));
+      
+      setSolutionImages(prev => ({
+        gemflow: images['solution-gemflow-image'] || prev.gemflow,
+        geminsights: images['solution-geminsights-image'] || prev.geminsights,
+        gemmind: images['solution-gemmind-image'] || prev.gemmind
       }));
     };
 
@@ -61,7 +84,7 @@ export function SolutionsSection({
       subtitle: "Automação de Processos",
       description: "Integração e automação de dados para otimizar fluxos de trabalho e eliminar tarefas repetitivas.",
       details: "Transforme processos manuais em fluxos automatizados inteligentes. Nossa plataforma conecta sistemas, padroniza dados e cria pipelines robustos que garantem eficiência operacional.",
-      image: "https://images.unsplash.com/photo-1758387933125-5ac945b4e2cd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhdXRvbWF0aW9uJTIwcHJvY2VzcyUyMHRlY2hub2xvZ3l8ZW58MXx8fHwxNzU4NTc5NjU5fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      image: solutionImages.gemflow,
       color: "emerald",
       logo: solutionLogos.gemflow
     },
@@ -70,7 +93,7 @@ export function SolutionsSection({
       subtitle: "Business Intelligence",
       description: "Dashboards e relatórios inteligentes que transformam dados complexos em insights acionáveis.",
       details: "Visualize seus dados como nunca antes. Criamos dashboards interativos e relatórios personalizados que revelam padrões ocultos e orientam decisões estratégicas em tempo real.",
-      image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxidXNpbmVzcyUyMGludGVsbGlnZW5jZSUyMGRhc2hib2FyZHxlbnwxfHx8fDE3NTg1NjkwMTV8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      image: solutionImages.geminsights,
       color: "blue",
       logo: solutionLogos.geminsights
     },
@@ -79,7 +102,7 @@ export function SolutionsSection({
       subtitle: "Inteligência Artificial",
       description: "Modelos preditivos e algoritmos de IA para antecipar tendências e otimizar resultados.",
       details: "O futuro dos seus dados está aqui. Desenvolvemos modelos de machine learning e IA que preveem comportamentos, identificam oportunidades e automatizam decisões complexas.",
-      image: "https://images.unsplash.com/photo-1697577418970-95d99b5a55cf?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhcnRpZmljaWFsJTIwaW50ZWxsaWdlbmNlJTIwdGVjaG5vbG9neXxlbnwxfHx8fDE3NTg0ODA0ODB8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      image: solutionImages.gemmind,
       color: "purple",
       logo: solutionLogos.gemmind
     }

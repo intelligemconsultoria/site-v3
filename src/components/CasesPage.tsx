@@ -224,7 +224,7 @@ export function CasesPage({ onBack, onReadCase }: CasesPageProps) {
               >
                 <div className="relative overflow-hidden">
                   <ImageWithFallback
-                    src={caseStudy.image}
+                    src={caseStudy.image_url}
                     alt={caseStudy.title}
                     className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                   />

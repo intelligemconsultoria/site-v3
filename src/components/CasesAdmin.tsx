@@ -43,7 +43,7 @@ export function CasesAdmin({ onBack }: CasesAdminProps) {
     challenge: '',
     solution: '',
     results: [''],
-    image: '',
+    image_url: '',
     category: 'GemFlow',
     metrics: {
       improvement: '',
@@ -182,7 +182,7 @@ export function CasesAdmin({ onBack }: CasesAdminProps) {
       challenge: '',
       solution: '',
       results: [''],
-      image: '',
+      image_url: '',
       category: 'GemFlow',
       metrics: {
         improvement: '',
@@ -659,8 +659,8 @@ export function CasesAdmin({ onBack }: CasesAdminProps) {
               <Label htmlFor="image">URL da Imagem</Label>
               <Input
                 id="image"
-                value={formData.image || ''}
-                onChange={(e) => handleInputChange('image', e.target.value)}
+                value={formData.image_url || ''}
+                onChange={(e) => handleInputChange('image_url', e.target.value)}
                 placeholder="https://exemplo.com/imagem.jpg"
               />
             </div>

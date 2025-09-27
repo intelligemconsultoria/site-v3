@@ -234,7 +234,7 @@ export function ArticleReader({ slug, onBack, onBackToBlog }: ArticleReaderProps
           {/* Imagem principal */}
           <div className="relative rounded-2xl overflow-hidden mb-16 shadow-2xl shadow-black/20">
             <ImageWithFallback
-              src={article.image}
+              src={article.image_url}
               alt={article.title}
               className="w-full h-72 md:h-96 lg:h-[500px] object-cover"
             />

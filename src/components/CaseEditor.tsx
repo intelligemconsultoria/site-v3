@@ -47,7 +47,7 @@ export function CaseEditor({ caseId, onBack }: CaseEditorProps) {
     challenge: '',
     solution: '',
     results: [''],
-    image: '',
+    image_url: '',
     category: 'GemFlow',
     metrics: {
       improvement: '',
@@ -89,7 +89,7 @@ export function CaseEditor({ caseId, onBack }: CaseEditorProps) {
           challenge: caseStudy.challenge || '',
           solution: caseStudy.solution || '',
           results: caseStudy.results.length > 0 ? caseStudy.results : [''],
-          image: caseStudy.image,
+          image_url: caseStudy.image_url,
           category: caseStudy.category,
           metrics: caseStudy.metrics,
           slug: caseStudy.slug,
@@ -146,7 +146,7 @@ export function CaseEditor({ caseId, onBack }: CaseEditorProps) {
   };
 
   const handleAutoSave = async () => {
-    if (!formData.title.trim()) return;
+    if (!formData.title.trim() || !caseId) return; // Só fazer autosave se já existe um caseId
 
     try {
       setIsSaving(true);
@@ -161,17 +161,7 @@ export function CaseEditor({ caseId, onBack }: CaseEditorProps) {
         tags: cleanTags.length > 0 ? cleanTags : ['']
       };
 
-      if (caseId) {
-        await casesService.updateCase(caseId, caseData);
-      } else {
-        // Criar novo case como rascunho
-        const newCase = await casesService.createCase({
-          ...caseData,
-          published: false
-        });
-        // Atualizar a URL ou estado para incluir o ID do novo case
-      }
-
+      await casesService.updateCase(caseId, caseData);
       setLastSaved(new Date());
       setHasChanges(false);
     } catch (error) {
@@ -312,7 +302,7 @@ export function CaseEditor({ caseId, onBack }: CaseEditorProps) {
   };
 
   const handleImageSelect = (imageUrl: string) => {
-    handleInputChange('image', imageUrl);
+    handleInputChange('image_url', imageUrl);
     setIsImageUploaderOpen(false);
     toast.success('Imagem selecionada!');
   };
@@ -556,10 +546,10 @@ export function CaseEditor({ caseId, onBack }: CaseEditorProps) {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {formData.image && (
+                {formData.image_url && (
                   <div className="relative">
                     <img
-                      src={formData.image}
+                      src={formData.image_url}
                       alt="Preview"
                       className="w-full h-32 object-cover rounded-lg"
                     />
@@ -567,7 +557,7 @@ export function CaseEditor({ caseId, onBack }: CaseEditorProps) {
                       variant="destructive"
                       size="sm"
                       className="absolute top-2 right-2"
-                      onClick={() => handleInputChange('image', '')}
+                      onClick={() => handleInputChange('image_url', '')}
                     >
                       <X className="w-3 h-3" />
                     </Button>
@@ -576,8 +566,8 @@ export function CaseEditor({ caseId, onBack }: CaseEditorProps) {
                 
                 <div className="space-y-2">
                   <Input
-                    value={formData.image}
-                    onChange={(e) => handleInputChange('image', e.target.value)}
+                    value={formData.image_url}
+                    onChange={(e) => handleInputChange('image_url', e.target.value)}
                     placeholder="URL da imagem"
                     className="text-sm"
                   />

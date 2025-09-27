@@ -251,7 +251,7 @@ export function CaseReader({ slug, onBack, onBackToCases }: CaseReaderProps) {
           {/* Imagem principal */}
           <div className="relative rounded-2xl overflow-hidden mb-16 shadow-2xl shadow-black/20">
             <ImageWithFallback
-              src={caseStudy.image}
+              src={caseStudy.image_url}
               alt={caseStudy.title}
               className="w-full h-72 md:h-96 lg:h-[500px] object-cover"
             />

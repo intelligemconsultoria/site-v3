@@ -412,20 +412,26 @@ O projeto abriu caminho para:
         .select('*')
         .eq('slug', slug)
         .eq('published', true)
-        .single();
+        .limit(1);
 
       if (error) {
-        if (error.code === 'PGRST116') return null; // Not found
-        throw error;
+        console.error('Erro ao buscar case por slug:', error);
+        return null;
       }
+
+      if (!data || data.length === 0) {
+        return null; // Not found
+      }
+
+      const caseStudy = data[0];
 
       // Incrementar view_count
       await this.supabase
         .from('case_studies')
-        .update({ view_count: (data.view_count || 0) + 1 })
-        .eq('id', data.id);
+        .update({ view_count: (caseStudy.view_count || 0) + 1 })
+        .eq('id', caseStudy.id);
 
-      return data;
+      return caseStudy;
     } catch (error) {
       console.error('Erro ao buscar case por slug:', error);
       return null;
@@ -438,13 +444,18 @@ O projeto abriu caminho para:
         .from('case_studies')
         .select('*')
         .eq('id', id)
-        .single();
+        .limit(1);
 
       if (error) {
-        if (error.code === 'PGRST116') return null; // Not found
-        throw error;
+        console.error('Erro ao buscar case por ID:', error);
+        return null;
       }
-      return data;
+
+      if (!data || data.length === 0) {
+        return null; // Not found
+      }
+
+      return data[0];
     } catch (error) {
       console.error('Erro ao buscar case por ID:', error);
       return null;
@@ -508,8 +519,38 @@ O projeto abriu caminho para:
 
   async createCase(caseStudy: Omit<CaseStudy, 'id' | 'created_at' | 'updated_at'>): Promise<CaseStudy> {
     try {
-      // Gerar slug se não fornecido
-      const slug = caseStudy.slug || this.generateSlug(caseStudy.title);
+      // Gerar slug único se não fornecido
+      let slug = caseStudy.slug || this.generateSlug(caseStudy.title);
+      
+      // Verificar se o slug já existe e gerar um único
+      let counter = 1;
+      let originalSlug = slug;
+      let maxAttempts = 100; // Limite de segurança
+      
+      while (counter <= maxAttempts) {
+        const { data: existingCases, error: checkError } = await this.supabase
+          .from('case_studies')
+          .select('id')
+          .eq('slug', slug)
+          .limit(1);
+        
+        if (checkError) {
+          console.error('Erro ao verificar slug único:', checkError);
+          break; // Se houver erro, usar o slug atual
+        }
+        
+        if (!existingCases || existingCases.length === 0) {
+          break; // Slug é único
+        }
+        
+        slug = `${originalSlug}-${counter}`;
+        counter++;
+      }
+      
+      if (counter > maxAttempts) {
+        // Se excedeu o limite, adicionar timestamp
+        slug = `${originalSlug}-${Date.now()}`;
+      }
 
       const { data, error } = await this.supabase
         .from('case_studies')
@@ -518,11 +559,15 @@ O projeto abriu caminho para:
           slug,
           view_count: 0
         }])
-        .select()
-        .single();
+        .select();
 
       if (error) throw error;
-      return data;
+      
+      if (!data || data.length === 0) {
+        throw new Error('Nenhum dado retornado após inserção');
+      }
+      
+      return data[0];
     } catch (error) {
       console.error('Erro ao criar case:', error);
       throw error;
@@ -541,14 +586,18 @@ O projeto abriu caminho para:
         .from('case_studies')
         .update(updateData)
         .eq('id', id)
-        .select()
-        .single();
+        .select();
 
       if (error) {
-        if (error.code === 'PGRST116') return null; // Not found
-        throw error;
+        console.error('Erro ao atualizar case:', error);
+        return null;
       }
-      return data;
+
+      if (!data || data.length === 0) {
+        return null; // Not found
+      }
+
+      return data[0];
     } catch (error) {
       console.error('Erro ao atualizar case:', error);
       throw error;

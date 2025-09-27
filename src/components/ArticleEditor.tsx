@@ -43,7 +43,7 @@ export function ArticleEditor({ articleId, onBack }: ArticleEditorProps) {
     content: '',
     author: '',
     category: '',
-    image: '',
+    image_url: '',
     featured: false,
     published: false,
     tags: ''
@@ -76,7 +76,7 @@ export function ArticleEditor({ articleId, onBack }: ArticleEditorProps) {
           content: article.content,
           author: article.author,
           category: article.category,
-          image: article.image,
+          image_url: article.image_url,
           featured: article.featured,
           published: article.published,
           tags: article.tags.join(', ')
@@ -118,7 +118,7 @@ export function ArticleEditor({ articleId, onBack }: ArticleEditorProps) {
   }, [formData, hasChanges]);
 
   const handleAutoSave = async () => {
-    if (!formData.title.trim()) return;
+    if (!formData.title.trim() || !articleId) return; // Só fazer autosave se já existe um articleId
 
     try {
       setIsSaving(true);
@@ -137,18 +137,7 @@ export function ArticleEditor({ articleId, onBack }: ArticleEditorProps) {
         readTime: `${readTime} min`
       };
 
-      if (articleId) {
-        await blogService.updateArticle(articleId, articleData);
-      } else {
-        // Criar novo artigo como rascunho
-        const newArticle = await blogService.createArticle({
-          ...articleData,
-          published: false
-        });
-        // Atualizar a URL ou estado para incluir o ID do novo artigo
-        // (isso dependeria de como você quer gerenciar a navegação)
-      }
-
+      await blogService.updateArticle(articleId, articleData);
       setLastSaved(new Date());
       setHasChanges(false);
     } catch (error) {
@@ -262,7 +251,7 @@ export function ArticleEditor({ articleId, onBack }: ArticleEditorProps) {
   };
 
   const handleImageSelect = (imageUrl: string) => {
-    handleInputChange('image', imageUrl);
+    handleInputChange('image_url', imageUrl);
     setIsImageUploaderOpen(false);
     toast.success('Imagem selecionada!');
   };
@@ -440,10 +429,10 @@ export function ArticleEditor({ articleId, onBack }: ArticleEditorProps) {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {formData.image && (
+                {formData.image_url && (
                   <div className="relative">
                     <img
-                      src={formData.image}
+                      src={formData.image_url}
                       alt="Preview"
                       className="w-full h-32 object-cover rounded-lg"
                     />
@@ -451,7 +440,7 @@ export function ArticleEditor({ articleId, onBack }: ArticleEditorProps) {
                       variant="destructive"
                       size="sm"
                       className="absolute top-2 right-2"
-                      onClick={() => handleInputChange('image', '')}
+                      onClick={() => handleInputChange('image_url', '')}
                     >
                       <X className="w-3 h-3" />
                     </Button>
@@ -460,8 +449,8 @@ export function ArticleEditor({ articleId, onBack }: ArticleEditorProps) {
                 
                 <div className="space-y-2">
                   <Input
-                    value={formData.image}
-                    onChange={(e) => handleInputChange('image', e.target.value)}
+                    value={formData.image_url}
+                    onChange={(e) => handleInputChange('image_url', e.target.value)}
                     placeholder="URL da imagem"
                     className="text-sm"
                   />

@@ -105,20 +105,26 @@ class BlogService {
         .select('*')
         .eq('slug', slug)
         .eq('published', true)
-        .single();
+        .limit(1);
 
       if (error) {
-        if (error.code === 'PGRST116') return null; // Not found
-        throw error;
+        console.error('Erro ao buscar artigo por slug:', error);
+        return null;
       }
+
+      if (!data || data.length === 0) {
+        return null; // Not found
+      }
+
+      const article = data[0];
 
       // Incrementar view_count
       await this.supabase
         .from('blog_articles')
-        .update({ view_count: (data.view_count || 0) + 1 })
-        .eq('id', data.id);
+        .update({ view_count: (article.view_count || 0) + 1 })
+        .eq('id', article.id);
 
-      return data;
+      return article;
     } catch (error) {
       console.error('Erro ao buscar artigo por slug:', error);
       return null;
@@ -131,13 +137,18 @@ class BlogService {
         .from('blog_articles')
         .select('*')
         .eq('id', id)
-        .single();
+        .limit(1);
 
       if (error) {
-        if (error.code === 'PGRST116') return null; // Not found
-        throw error;
+        console.error('Erro ao buscar artigo por ID:', error);
+        return null;
       }
-      return data;
+
+      if (!data || data.length === 0) {
+        return null; // Not found
+      }
+
+      return data[0];
     } catch (error) {
       console.error('Erro ao buscar artigo por ID:', error);
       return null;
@@ -223,16 +234,19 @@ class BlogService {
       const { data, error } = await this.supabase
         .from('blog_articles')
         .insert([articleData])
-        .select()
-        .single();
+        .select();
 
       if (error) {
         logger.supabaseError('createArticle', error, { articleData });
         throw error;
       }
 
-      logger.supabaseSuccess('createArticle', { articleId: data?.id });
-      return data;
+      if (!data || data.length === 0) {
+        throw new Error('Nenhum dado retornado após inserção');
+      }
+
+      logger.supabaseSuccess('createArticle', { articleId: data[0].id });
+      return data[0];
     } catch (error) {
       logger.error('BLOG_SERVICE', 'Erro ao criar artigo', error as Error, { article: { ...article, content: '[CONTENT_HIDDEN]' } });
       throw error;
@@ -256,14 +270,18 @@ class BlogService {
         .from('blog_articles')
         .update(updateData)
         .eq('id', id)
-        .select()
-        .single();
+        .select();
 
       if (error) {
-        if (error.code === 'PGRST116') return null; // Not found
-        throw error;
+        console.error('Erro ao atualizar artigo:', error);
+        return null;
       }
-      return data;
+
+      if (!data || data.length === 0) {
+        return null; // Not found
+      }
+
+      return data[0];
     } catch (error) {
       console.error('Erro ao atualizar artigo:', error);
       throw error;

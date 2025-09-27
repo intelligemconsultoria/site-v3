@@ -90,7 +90,7 @@ export function SolutionsSection({
       <div className="container mx-auto px-6">
         <div className="text-center mb-16">
           <h2 className="text-4xl lg:text-5xl mb-6">
-            <span className="bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent hover:from-emerald-300 hover:to-blue-300 transition-all duration-300 inline-block">
               Nossas Soluções
             </span>
           </h2>
@@ -111,7 +111,7 @@ export function SolutionsSection({
                   <img 
                     src={solution.logo} 
                     alt={`${solution.name} Logo`}
-                    className="w-16 h-16 object-contain rounded-xl bg-white/10 p-2"
+                    className="w-20 h-20 object-contain rounded-xl bg-white/10 p-3"
                   />
                 </div>
                 <div className="flex-1">

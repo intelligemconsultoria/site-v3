@@ -44,7 +44,7 @@ export function mapBlogArticleToDb(article: any): Partial<BlogArticle> {
 export function mapCaseStudyToLegacy(caseStudy: CaseStudy): any {
   return {
     ...caseStudy,
-    image: caseStudy.image_url,
+    image_url: caseStudy.image_url,
     createdAt: caseStudy.created_at,
     updatedAt: caseStudy.updated_at
   };

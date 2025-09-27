@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
@@ -16,7 +16,7 @@ import { SystemHealthCheck } from "./SystemHealthCheck";
 import { SiteImageUploader } from "./SiteImageUploader";
 import { ArrowLeft, Plus, Edit, Trash2, Eye, EyeOff, Building, TrendingUp, BarChart, Award, Calendar, Search, Filter } from "lucide-react";
 import { casesService, CaseStudy } from "../services/casesServiceCompat";
-import { toast } from "sonner@2.0.3";
+import { toast } from "sonner";
 
 interface CasesAdminProps {
   onBack: () => void;
@@ -27,6 +27,9 @@ export function CasesAdmin({ onBack }: CasesAdminProps) {
   const [filteredCases, setFilteredCases] = useState<CaseStudy[]>([]);
   const [stats, setStats] = useState<any>({});
   const [loading, setLoading] = useState(true);
+  const [isLoadingData, setIsLoadingData] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [caseToDelete, setCaseToDelete] = useState<string | null>(null);
   const [editingCase, setEditingCase] = useState<CaseStudy | null>(null);
   const [isNewCase, setIsNewCase] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -57,43 +60,85 @@ export function CasesAdmin({ onBack }: CasesAdminProps) {
   });
 
   useEffect(() => {
+    console.log('useEffect inicial: Carregando dados...');
+    console.log('Página atual: cases-admin');
     loadData();
   }, []);
 
+  // Aplicar filtros quando searchQuery ou filterStatus mudarem
   useEffect(() => {
-    filterCases();
-  }, [cases, searchQuery, filterStatus]);
+    if (cases.length > 0) {
+      console.log('useEffect: Aplicando filtros devido a mudança em searchQuery ou filterStatus');
+      console.log('Página atual: cases-admin');
+      filterCases();
+    }
+  }, [searchQuery, filterStatus]);
 
   const loadData = async () => {
+    if (isLoadingData) {
+      console.log('loadData já em execução, ignorando...');
+      return;
+    }
+    
     try {
+      setIsLoadingData(true);
       setLoading(true);
+      console.log('=== INICIANDO LOADDATA ===');
+      console.log('Página atual: cases-admin');
+      
       const [casesData, statsData] = await Promise.all([
         casesService.getAllCases(),
         casesService.getStats()
       ]);
       
-      setCases(casesData.sort((a, b) => 
+      console.log('Cases carregados do Supabase:', casesData.length, casesData.map(c => ({ id: c.id, title: c.title })));
+      
+      const sortedCases = casesData.sort((a, b) => 
         new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-      ));
+      );
+      
+      console.log('Cases ordenados:', sortedCases.length, sortedCases.map(c => ({ id: c.id, title: c.title })));
+      
+      setCases(sortedCases);
       setStats(statsData);
+      
+      console.log('Estado cases atualizado, aplicando filtros...');
+      
+      // Aplicar filtros imediatamente após carregar os dados
+      console.log('Aplicando filtros...');
+      filterCases(sortedCases);
+      
+      console.log('=== LOADDATA CONCLUÍDO ===');
     } catch (error) {
       console.error("Erro ao carregar dados:", error);
       toast.error("Erro ao carregar dados");
     } finally {
       setLoading(false);
+      setIsLoadingData(false);
     }
   };
 
-  const filterCases = () => {
-    let filtered = cases;
+  const filterCases = (casesToFilter = cases) => {
+    // Usar os cases passados como parâmetro ou o estado atual
+    const currentCases = casesToFilter;
+    let filtered = [...currentCases];
+
+    console.log('=== FILTRANDO CASES ===');
+    console.log('Cases atuais:', currentCases.length, currentCases.map(c => ({ id: c.id, title: c.title, published: c.published, featured: c.featured })));
+    console.log('Filtros ativos:', { filterStatus, searchQuery });
 
     // Filtrar por status
     if (filterStatus === "published") {
       filtered = filtered.filter(c => c.published);
+      console.log('Filtro published aplicado:', filtered.length);
     } else if (filterStatus === "draft") {
       filtered = filtered.filter(c => !c.published);
+      console.log('Filtro draft aplicado:', filtered.length);
     } else if (filterStatus === "featured") {
       filtered = filtered.filter(c => c.featured);
+      console.log('Filtro featured aplicado:', filtered.length);
+    } else {
+      console.log('Nenhum filtro de status aplicado (all)');
     }
 
     // Filtrar por busca
@@ -105,9 +150,12 @@ export function CasesAdmin({ onBack }: CasesAdminProps) {
         c.industry.toLowerCase().includes(query) ||
         c.category.toLowerCase().includes(query)
       );
+      console.log('Filtro de busca aplicado:', filtered.length);
     }
 
+    console.log('Cases filtrados finais:', filtered.length, filtered.map(c => ({ id: c.id, title: c.title })));
     setFilteredCases(filtered);
+    console.log('=== FILTROS APLICADOS COM SUCESSO ===');
   };
 
   const generateSlug = (title: string) => {
@@ -242,11 +290,45 @@ export function CasesAdmin({ onBack }: CasesAdminProps) {
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const openDeleteDialog = (id: string) => {
+    setCaseToDelete(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDelete = async () => {
+    if (!caseToDelete) return;
+    
+    console.log('FUNÇÃO HANDLEDELETE CHAMADA!', caseToDelete);
+    alert('FUNÇÃO HANDLEDELETE CHAMADA! ID: ' + caseToDelete);
+    
     try {
-      await casesService.deleteCase(id);
-      toast.success("Case excluído com sucesso!");
-      loadData();
+      console.log('=== INÍCIO DA EXCLUSÃO ===');
+      console.log('ID do case a ser excluído:', caseToDelete);
+      console.log('Cases antes da exclusão:', cases.length, cases.map(c => ({ id: c.id, title: c.title })));
+      
+      const result = await casesService.deleteCase(caseToDelete);
+      console.log('Resultado da exclusão:', result);
+      
+      if (result) {
+        console.log('Case excluído com sucesso, recarregando dados...');
+        
+        // Fechar o dialog PRIMEIRO
+        setDeleteDialogOpen(false);
+        setCaseToDelete(null);
+        
+        // Aguardar um pouco antes de recarregar para garantir que o Supabase processou
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        console.log('Chamando loadData...');
+        await loadData();
+        console.log('Dados recarregados após exclusão');
+        
+        // Toast APÓS loadData para evitar conflitos
+        toast.success("Case excluído com sucesso!");
+      } else {
+        console.error('Falha na exclusão - resultado false');
+        toast.error("Falha ao excluir case");
+      }
     } catch (error) {
       console.error("Erro ao excluir case:", error);
       toast.error("Erro ao excluir case");
@@ -396,6 +478,7 @@ export function CasesAdmin({ onBack }: CasesAdminProps) {
 
             {/* Lista de Cases */}
             <div className="space-y-4">
+              {console.log('Renderizando cases:', filteredCases.length, filteredCases)}
               {filteredCases.map((caseStudy) => (
                 <Card key={caseStudy.id} className="hover:shadow-md transition-shadow">
                   <CardContent className="p-6">
@@ -463,34 +546,14 @@ export function CasesAdmin({ onBack }: CasesAdminProps) {
                           <Edit className="w-4 h-4" />
                         </Button>
                         
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="text-red-400 hover:text-red-300"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                Tem certeza que deseja excluir o case "{caseStudy.title}"? Esta ação não pode ser desfeita.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={() => handleDelete(caseStudy.id)}
-                                className="bg-red-500 hover:bg-red-600 text-white"
-                              >
-                                Excluir
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => openDeleteDialog(caseStudy.id)}
+                          className="text-red-400 hover:text-red-300"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
                       </div>
                     </div>
                   </CardContent>
@@ -836,6 +899,32 @@ export function CasesAdmin({ onBack }: CasesAdminProps) {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Dialog de Confirmação de Exclusão */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir este case? Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => {
+              setDeleteDialogOpen(false);
+              setCaseToDelete(null);
+            }}>
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              className="bg-red-500 hover:bg-red-600 text-white"
+            >
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

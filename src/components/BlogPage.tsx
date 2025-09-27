@@ -81,7 +81,7 @@ export function BlogPage({ onBack, onReadArticle }: BlogPageProps) {
 
           <div className="text-center mb-12">
             <h1 className="text-4xl lg:text-6xl mb-6">
-              <span className="bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent hover:from-emerald-300 hover:to-blue-300 transition-all duration-300 inline-block">
                 Blog IntelliGem
               </span>
             </h1>

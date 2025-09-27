@@ -22,10 +22,18 @@ app.use(
 );
 
 // Initialize Supabase client
-const supabase = createClient(
-  Deno.env.get('SUPABASE_URL') ?? '',
-  Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
-);
+const supabaseUrl = Deno.env.get('SUPABASE_URL');
+const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+
+console.log('Supabase URL:', supabaseUrl ? 'Set' : 'Not set');
+console.log('Supabase Service Key:', supabaseServiceKey ? 'Set' : 'Not set');
+
+if (!supabaseUrl || !supabaseServiceKey) {
+  console.error('Missing Supabase environment variables');
+  throw new Error('Supabase configuration is incomplete');
+}
+
+const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 // Initialize Resend client
 const resend = new Resend(Deno.env.get('RESEND_API_KEY') ?? '');
@@ -85,6 +93,95 @@ initializeBuckets();
 // Health check endpoint
 app.get("/make-server-a91235ef/health", (c) => {
   return c.json({ status: "ok" });
+});
+
+// Blog Images endpoints - COMPATIBILITY ROUTES
+app.get("/make-server-a91235ef/images", async (c) => {
+  try {
+    // Get all blog images from KV store
+    const images = await kv.getByPrefix('image:');
+    const imagesData = images.map(item => ({
+      id: item.key.replace('image:', ''),
+      ...item.value
+    }));
+    
+    return c.json(imagesData);
+  } catch (error) {
+    console.error('Error fetching blog images:', error);
+    return c.json({ error: 'Failed to fetch images' }, 500);
+  }
+});
+
+app.post("/make-server-a91235ef/images", async (c) => {
+  try {
+    const imageData = await c.req.json();
+    const { id, ...data } = imageData;
+    
+    if (!id) {
+      return c.json({ error: 'Image ID is required' }, 400);
+    }
+    
+    await kv.set(`image:${id}`, data);
+    return c.json({ success: true, id });
+  } catch (error) {
+    console.error('Error saving blog image:', error);
+    return c.json({ error: 'Failed to save image' }, 500);
+  }
+});
+
+app.get("/make-server-a91235ef/images/category/:category", async (c) => {
+  try {
+    const category = c.req.param('category');
+    const images = await kv.getByPrefix('image:');
+    const filteredImages = images
+      .filter(item => item.value.category === category)
+      .map(item => ({
+        id: item.key.replace('image:', ''),
+        ...item.value
+      }));
+    
+    return c.json(filteredImages);
+  } catch (error) {
+    console.error('Error fetching images by category:', error);
+    return c.json({ error: 'Failed to fetch images by category' }, 500);
+  }
+});
+
+app.put("/make-server-a91235ef/images/:id", async (c) => {
+  try {
+    const imageId = c.req.param('id');
+    const updates = await c.req.json();
+    
+    const existingImage = await kv.get(`image:${imageId}`);
+    if (!existingImage) {
+      return c.json({ error: 'Image not found' }, 404);
+    }
+    
+    const updatedImage = { ...existingImage, ...updates };
+    await kv.set(`image:${imageId}`, updatedImage);
+    
+    return c.json({ success: true, image: updatedImage });
+  } catch (error) {
+    console.error('Error updating image:', error);
+    return c.json({ error: 'Failed to update image' }, 500);
+  }
+});
+
+app.delete("/make-server-a91235ef/images/:id", async (c) => {
+  try {
+    const imageId = c.req.param('id');
+    
+    const existingImage = await kv.get(`image:${imageId}`);
+    if (!existingImage) {
+      return c.json({ error: 'Image not found' }, 404);
+    }
+    
+    await kv.del(`image:${imageId}`);
+    return c.json({ success: true, message: 'Image deleted' });
+  } catch (error) {
+    console.error('Error deleting image:', error);
+    return c.json({ error: 'Failed to delete image' }, 500);
+  }
 });
 
 // Site Images Upload endpoint - PROTECTED
@@ -165,28 +262,54 @@ app.post("/make-server-a91235ef/site-images/upload", async (c) => {
 // Get all site images
 app.get("/make-server-a91235ef/site-images", async (c) => {
   try {
+    console.log('Fetching site images...');
     const images = await kv.getByPrefix('site-image:');
+    console.log('Found images:', images.length);
+    
+    if (images.length === 0) {
+      return c.json([]);
+    }
+    
     const imagesData = await Promise.all(
       images.map(async (item) => {
-        const metadata = item.value;
-        
-        // Generate fresh signed URL
-        const { data: signedData } = await supabase.storage
-          .from(SITE_IMAGES_BUCKET)
-          .createSignedUrl(metadata.filename, 86400);
-        
-        return {
-          key: item.key.replace('site-image:', ''),
-          ...metadata,
-          publicUrl: signedData?.signedUrl || metadata.publicUrl
-        };
+        try {
+          const metadata = item.value;
+          console.log('Processing image:', item.key, metadata);
+          
+          if (!metadata || !metadata.filename) {
+            console.error('Invalid metadata for image:', item.key);
+            return null;
+          }
+          
+          // Generate fresh signed URL
+          const { data: signedData, error: signedError } = await supabase.storage
+            .from(SITE_IMAGES_BUCKET)
+            .createSignedUrl(metadata.filename, 86400);
+          
+          if (signedError) {
+            console.error('Signed URL error for', metadata.filename, signedError);
+          }
+          
+          return {
+            key: item.key.replace('site-image:', ''),
+            ...metadata,
+            publicUrl: signedData?.signedUrl || metadata.publicUrl
+          };
+        } catch (itemError) {
+          console.error('Error processing image item:', item.key, itemError);
+          return null;
+        }
       })
     );
     
-    return c.json(imagesData);
+    // Filter out null values
+    const validImages = imagesData.filter(img => img !== null);
+    console.log('Returning valid images:', validImages.length);
+    
+    return c.json(validImages);
   } catch (error) {
     console.error('Error fetching site images:', error);
-    return c.json({ error: 'Failed to fetch images' }, 500);
+    return c.json({ error: 'Failed to fetch images', details: error.message }, 500);
   }
 });
 

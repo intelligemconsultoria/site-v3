@@ -123,7 +123,7 @@ export function CasesPage({ onBack, onReadCase }: CasesPageProps) {
             </div>
             
             <h1 className="text-4xl md:text-5xl lg:text-6xl mb-6 leading-tight">
-              <span className="bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent hover:from-emerald-300 hover:to-blue-300 transition-all duration-300 inline-block">
                 Transformações Reais
               </span>
               <br />
@@ -306,7 +306,7 @@ export function CasesPage({ onBack, onReadCase }: CasesPageProps) {
         <div className="mt-20 bg-gradient-to-br from-card/50 to-muted/30 border border-border rounded-2xl p-12 text-center backdrop-blur-sm">
           <div className="max-w-2xl mx-auto">
             <h3 className="text-3xl mb-6">
-              <span className="bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent hover:from-emerald-300 hover:to-blue-300 transition-all duration-300 inline-block">
                 Próximo case de sucesso: o seu
               </span>
             </h3>

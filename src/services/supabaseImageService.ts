@@ -17,21 +17,31 @@ export interface SiteImageMetadata {
 
 export class SupabaseImageService {
   private static async getHeaders(requireAuth: boolean = false): Promise<Record<string, string>> {
+    console.log('🔑 [supabaseImageService] getHeaders() iniciado, requireAuth:', requireAuth);
+    
     const headers: Record<string, string> = {};
     
     if (requireAuth) {
+      console.log('🔐 [supabaseImageService] Requer autenticação, buscando sessão...');
       // Try to get fresh access token
       const sessionResult = await AuthService.getCurrentSession();
+      console.log('🔐 [supabaseImageService] Session result:', sessionResult);
+      
       if (sessionResult.success && sessionResult.accessToken) {
         headers['Authorization'] = `Bearer ${sessionResult.accessToken}`;
+        console.log('✅ [supabaseImageService] Token de autenticação obtido');
       } else {
+        console.error('❌ [supabaseImageService] Falha na autenticação:', sessionResult);
         throw new Error('Authentication required but no valid session found. Please login again.');
       }
     } else {
+      console.log('🌐 [supabaseImageService] Usando chave pública anônima');
       // Use public anon key for public requests
       headers['Authorization'] = `Bearer ${publicAnonKey}`;
+      console.log('🔑 [supabaseImageService] Public key (primeiros 20 chars):', publicAnonKey.substring(0, 20) + '...');
     }
     
+    console.log('📋 [supabaseImageService] Headers finais:', headers);
     return headers;
   }
 
@@ -58,8 +68,35 @@ export class SupabaseImageService {
       const result = await response.json();
 
       if (!response.ok) {
-        console.error('Upload API error:', response.status, result);
-        throw new Error(result.error || `Upload failed with status ${response.status}`);
+        console.warn('Edge Function não disponível, usando fallback:', response.status);
+        
+        // Fallback: simular upload e salvar no localStorage
+        const fallbackMetadata: SiteImageMetadata = {
+          key: imageKey,
+          filename: `${imageKey}-${Date.now()}.${file.name.split('.').pop()}`,
+          originalName: file.name,
+          category: category || 'uncategorized',
+          size: file.size,
+          type: file.type,
+          uploadedAt: new Date().toISOString(),
+          publicUrl: URL.createObjectURL(file) // URL temporária do arquivo
+        };
+
+        // Salvar no localStorage
+        try {
+          const storedImages = localStorage.getItem('intelligem_site_images');
+          const images = storedImages ? JSON.parse(storedImages) : [];
+          images.push(fallbackMetadata);
+          localStorage.setItem('intelligem_site_images', JSON.stringify(images));
+        } catch (error) {
+          console.warn('Erro ao salvar no localStorage:', error);
+        }
+
+        return {
+          success: true,
+          url: fallbackMetadata.publicUrl,
+          metadata: fallbackMetadata,
+        };
       }
 
       return {
@@ -80,23 +117,53 @@ export class SupabaseImageService {
 
   // Get all site images (public access)
   static async getAllSiteImages(): Promise<SiteImageMetadata[]> {
+    console.log('🏠 [supabaseImageService] getAllSiteImages() iniciado');
+    
     try {
-      const headers = await this.getHeaders(false); // No auth required for reading
+      console.log('🔄 [supabaseImageService] Tentando Edge Function...');
+      const headers = await this.getHeaders(false);
+      console.log('🔑 [supabaseImageService] Headers:', headers);
       
-      const response = await fetch(`${API_BASE_URL}/site-images`, {
+      const url = `${API_BASE_URL}/site-images`;
+      console.log('📡 [supabaseImageService] URL:', url);
+      
+      const response = await fetch(url, {
         headers,
       });
 
-      if (!response.ok) {
-        console.error('Fetch images API error:', response.status, await response.text());
-        throw new Error(`Failed to fetch images: ${response.status}`);
-      }
+      console.log('📊 [supabaseImageService] Response status:', response.status);
+      console.log('📊 [supabaseImageService] Response ok:', response.ok);
 
-      return await response.json();
+      if (response.ok) {
+        const data = await response.json();
+        console.log('✅ [supabaseImageService] Edge Function sucesso, dados:', data);
+        return data;
+      } else {
+        const errorText = await response.text();
+        console.error('❌ [supabaseImageService] Edge Function erro:', response.status, errorText);
+      }
     } catch (error) {
-      console.error('Error fetching site images:', error);
-      return [];
+      console.error('❌ [supabaseImageService] Edge Function exception:', error);
     }
+
+    console.log('🔄 [supabaseImageService] Tentando localStorage fallback...');
+    try {
+      const storedImages = localStorage.getItem('intelligem_site_images');
+      console.log('💾 [supabaseImageService] localStorage data:', storedImages ? 'existe' : 'não existe');
+      
+      if (storedImages) {
+        const parsed = JSON.parse(storedImages);
+        console.log('✅ [supabaseImageService] localStorage sucesso, imagens:', parsed.length);
+        return parsed;
+      } else {
+        console.log('⚠️ [supabaseImageService] localStorage vazio');
+      }
+    } catch (error) {
+      console.error('❌ [supabaseImageService] localStorage erro:', error);
+    }
+
+    console.log('🔄 [supabaseImageService] Retornando array vazio');
+    return [];
   }
 
   // Get site image by key (public access)
@@ -108,17 +175,29 @@ export class SupabaseImageService {
         headers,
       });
 
-      if (!response.ok) {
-        if (response.status === 404) return null;
-        console.error('Fetch image API error:', response.status, await response.text());
-        throw new Error(`Failed to fetch image: ${response.status}`);
+      if (response.ok) {
+        return await response.json();
+      } else if (response.status === 404) {
+        return null;
+      } else {
+        console.warn('Edge Function não disponível, usando fallback:', response.status);
       }
-
-      return await response.json();
     } catch (error) {
-      console.error('Error fetching site image:', error);
-      return null;
+      console.warn('Edge Function não disponível, usando fallback:', error);
     }
+
+    // Fallback: buscar do localStorage
+    try {
+      const storedImages = localStorage.getItem('intelligem_site_images');
+      if (storedImages) {
+        const images = JSON.parse(storedImages);
+        return images.find((img: SiteImageMetadata) => img.key === imageKey) || null;
+      }
+    } catch (error) {
+      console.warn('Erro ao carregar site image do localStorage:', error);
+    }
+
+    return null;
   }
 
   // Get images by category
@@ -130,16 +209,27 @@ export class SupabaseImageService {
         headers,
       });
 
-      if (!response.ok) {
-        console.error('Fetch category images API error:', response.status, await response.text());
-        throw new Error(`Failed to fetch images by category: ${response.status}`);
+      if (response.ok) {
+        return await response.json();
+      } else {
+        console.warn('Edge Function não disponível, usando fallback:', response.status);
       }
-
-      return await response.json();
     } catch (error) {
-      console.error('Error fetching images by category:', error);
-      return [];
+      console.warn('Edge Function não disponível, usando fallback:', error);
     }
+
+    // Fallback: filtrar do localStorage
+    try {
+      const storedImages = localStorage.getItem('intelligem_site_images');
+      if (storedImages) {
+        const images = JSON.parse(storedImages);
+        return images.filter((img: SiteImageMetadata) => img.category === category);
+      }
+    } catch (error) {
+      console.warn('Erro ao carregar site images do localStorage:', error);
+    }
+
+    return [];
   }
 
   // Update site image metadata

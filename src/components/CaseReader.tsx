@@ -312,7 +312,7 @@ export function CaseReader({ slug, onBack, onBackToCases }: CaseReaderProps) {
         <div className="mb-16">
           <div className="bg-gradient-to-br from-emerald-400/10 to-blue-400/10 border border-emerald-400/20 rounded-2xl p-8">
             <h2 className="text-2xl mb-8 text-center">
-              <span className="bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent hover:from-emerald-300 hover:to-blue-300 transition-all duration-300 inline-block">
                 Impacto Mensurado
               </span>
             </h2>
@@ -350,7 +350,7 @@ export function CaseReader({ slug, onBack, onBackToCases }: CaseReaderProps) {
         {/* Todos os Resultados */}
         <div className="mb-16">
           <h2 className="text-2xl mb-8 text-center">
-            <span className="bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent hover:from-emerald-300 hover:to-blue-300 transition-all duration-300 inline-block">
               Resultados Completos
             </span>
           </h2>
@@ -398,7 +398,7 @@ export function CaseReader({ slug, onBack, onBackToCases }: CaseReaderProps) {
         <div className="bg-gradient-to-br from-card/50 to-muted/30 border border-border rounded-2xl p-12 text-center backdrop-blur-sm">
           <div className="max-w-2xl mx-auto">
             <h3 className="text-3xl mb-6">
-              <span className="bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent hover:from-emerald-300 hover:to-blue-300 transition-all duration-300 inline-block">
                 Próximo case de sucesso: o seu
               </span>
             </h3>

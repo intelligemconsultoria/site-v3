@@ -124,7 +124,7 @@ export function SolutionPage({ solution, onBack, onContact }: SolutionPageProps)
                 <img 
                   src={solution.logo} 
                   alt={`${solution.name} Logo`}
-                  className="w-16 h-16 object-contain rounded-xl bg-white/10 p-2"
+                  className="w-20 h-20 object-contain rounded-xl bg-white/10 p-3"
                 />
                 <div>
                   <h1 className="text-4xl lg:text-5xl mb-2">

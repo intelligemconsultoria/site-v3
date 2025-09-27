@@ -1,11 +1,11 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 import { ThemeToggle } from "./ThemeToggle";
 import { AuthStatus } from "./AuthStatus";
 import { useAuth } from "../hooks/useAuth";
 import { MeetingRequestModal } from "./MeetingRequestModal";
 import { useMeetingModal } from "../hooks/useMeetingModal";
-import intelligemLogo from "figma:asset/6b92ef4371fead8d661263f615c56e4cb4e3ce7f.png";
+const intelligemLogo = "https://abfowubusomlibuihqrz.supabase.co/storage/v1/object/public/static-images/site/1758897144652-eadaue4psn6.png";
 
 interface HeaderProps {
   onNavigateToAdmin?: () => void;
@@ -22,11 +22,14 @@ export function Header({ onNavigateToAdmin, onNavigateToBlog, onNavigateToCases,
   });
 
   useEffect(() => {
-    // Load custom logo from localStorage
-    const savedLogo = localStorage.getItem('site-image-logo-header');
-    if (savedLogo) {
-      setHeaderLogo(savedLogo);
-    }
+    // Force update to Supabase URL
+    const supabaseUrl = "https://abfowubusomlibuihqrz.supabase.co/storage/v1/object/public/static-images/site/1758897144652-eadaue4psn6.png";
+    
+    // Update localStorage with new URL
+    localStorage.setItem('site-image-logo-header', supabaseUrl);
+    
+    // Set the logo immediately
+    setHeaderLogo(supabaseUrl);
 
     // Listen for image updates
     const handleImageUpdate = (event: CustomEvent) => {
@@ -51,6 +54,8 @@ export function Header({ onNavigateToAdmin, onNavigateToBlog, onNavigateToCases,
             src={headerLogo} 
             alt="IntelliGem" 
             className="w-10 h-10 object-contain"
+            width="40"
+            height="40"
             onDoubleClick={onNavigateToAdmin}
             style={{ cursor: onNavigateToAdmin ? 'pointer' : 'default' }}
           />

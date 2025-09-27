@@ -13,7 +13,7 @@ export interface CaseStudy {
   challenge: string;
   solution: string;
   results: string[];
-  image: string; // Nome antigo
+  image_url: string; // Nome antigo
   category: 'GemFlow' | 'GemInsights' | 'GemMind';
   metrics: {
     improvement: string;
@@ -32,7 +32,8 @@ class CasesServiceCompat {
   // Métodos para cases
   async getAllCases(): Promise<CaseStudy[]> {
     const cases = await newCasesService.getAllCases();
-    return mapCaseStudiesToLegacy(cases);
+    const mappedCases = mapCaseStudiesToLegacy(cases);
+    return mappedCases;
   }
 
   async getPublishedCases(): Promise<CaseStudy[]> {

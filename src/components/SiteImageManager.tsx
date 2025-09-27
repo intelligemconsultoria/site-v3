@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
 import { ImageSelector } from "./ImageSelector";
@@ -6,9 +6,10 @@ import { Save, RotateCcw, Eye, Monitor, Smartphone, Database, Cloud, Upload } fr
 import { SupabaseImageUploader } from "./SupabaseImageUploader";
 import { SiteImageUploader } from "./SiteImageUploader";
 import { SupabaseImageService, SiteImageMetadata } from "../services/supabaseImageService";
-import { toast } from "sonner@2.0.3";
+import { toast } from "sonner";
 import { Badge } from "./ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import { SimpleImageManager } from "./SimpleImageManager";
 
 interface SiteImage {
   key: string;
@@ -27,7 +28,7 @@ const SITE_IMAGES: SiteImage[] = [
     key: 'logo-header',
     label: 'Logo Principal (Header)',
     description: 'Logo que aparece no cabeçalho do site',
-    defaultValue: 'figma:asset/6b92ef4371fead8d661263f615c56e4cb4e3ce7f.png',
+    defaultValue: 'https://abfowubusomlibuihqrz.supabase.co/storage/v1/object/public/static-images/site/1758897144652-eadaue4psn6.png',
     category: 'logos',
     dimensions: '200x60px',
     usage: 'Header, Footer',
@@ -47,7 +48,7 @@ const SITE_IMAGES: SiteImage[] = [
     key: 'logo-gemflow',
     label: 'Logo GemFlow',
     description: 'Logo da solução GemFlow (Automação)',
-    defaultValue: 'figma:asset/5175adeec9ce8271bb85bf293b9214728409a71a.png',
+    defaultValue: 'https://abfowubusomlibuihqrz.supabase.co/storage/v1/object/public/static-images/site/gemflow-logo.png',
     category: 'logos',
     dimensions: '80x80px',
     usage: 'Seção Soluções',
@@ -57,7 +58,7 @@ const SITE_IMAGES: SiteImage[] = [
     key: 'logo-geminsights',
     label: 'Logo GemInsights',
     description: 'Logo da solução GemInsights (BI)',
-    defaultValue: 'figma:asset/7dd46db1fefa5288c113180ade65c741fafebcce.png',
+    defaultValue: 'https://abfowubusomlibuihqrz.supabase.co/storage/v1/object/public/static-images/site/geminsights-logo.png',
     category: 'logos',
     dimensions: '80x80px',
     usage: 'Seção Soluções',
@@ -67,7 +68,7 @@ const SITE_IMAGES: SiteImage[] = [
     key: 'logo-gemmind',
     label: 'Logo GemMind',
     description: 'Logo da solução GemMind (IA)',
-    defaultValue: 'figma:asset/c856949ab322f91d15b5aaecc11426c61fe0ed10.png',
+    defaultValue: 'https://abfowubusomlibuihqrz.supabase.co/storage/v1/object/public/static-images/site/gemmind-logo.png',
     category: 'logos',
     dimensions: '80x80px',
     usage: 'Seção Soluções',
@@ -206,43 +207,64 @@ export function SiteImageManager() {
   }, []);
 
   const loadSiteImages = async () => {
+    console.log('🏠 [SiteImageManager] loadSiteImages() iniciado');
     setLoading(true);
+    console.log('⏳ [SiteImageManager] Loading state: true');
+    
     try {
       const savedImages: Record<string, string> = {};
       const supabaseImagesData: Record<string, SiteImageMetadata> = {};
       
+      console.log('🔄 [SiteImageManager] Carregando imagens do Supabase...');
       // Load from Supabase first
       const allSupabaseImages = await SupabaseImageService.getAllSiteImages();
+      console.log('📊 [SiteImageManager] Imagens do Supabase recebidas:', allSupabaseImages);
+      console.log('📊 [SiteImageManager] Quantidade de imagens do Supabase:', allSupabaseImages.length);
+      
       allSupabaseImages.forEach(img => {
         supabaseImagesData[img.key] = img;
       });
+      console.log('📋 [SiteImageManager] Supabase images data:', supabaseImagesData);
       
+      console.log('🔄 [SiteImageManager] Processando SITE_IMAGES...');
       // Then check localStorage as fallback
       SITE_IMAGES.forEach(image => {
+        console.log(`🖼️ [SiteImageManager] Processando imagem: ${image.key}`);
         const supabaseImg = supabaseImagesData[image.key];
         if (supabaseImg) {
+          console.log(`✅ [SiteImageManager] Imagem ${image.key} encontrada no Supabase:`, supabaseImg.publicUrl);
           savedImages[image.key] = supabaseImg.publicUrl;
         } else {
+          console.log(`⚠️ [SiteImageManager] Imagem ${image.key} não encontrada no Supabase, verificando localStorage...`);
           const saved = localStorage.getItem(`site-image-${image.key}`);
-          savedImages[image.key] = saved || image.defaultValue;
+          const finalUrl = saved || image.defaultValue;
+          console.log(`💾 [SiteImageManager] Imagem ${image.key} final URL:`, finalUrl);
+          savedImages[image.key] = finalUrl;
         }
       });
       
+      console.log('📋 [SiteImageManager] Supabase images data final:', supabaseImagesData);
+      console.log('📋 [SiteImageManager] Saved images final:', savedImages);
+      
       setSupabaseImages(supabaseImagesData);
       setImageValues(savedImages);
+      console.log('✅ [SiteImageManager] Estados atualizados com sucesso');
     } catch (error) {
-      console.error('Error loading site images:', error);
+      console.error('❌ [SiteImageManager] Erro ao carregar imagens:', error);
       toast.error('Erro ao carregar imagens do Supabase');
       
+      console.log('🔄 [SiteImageManager] Usando fallback localStorage...');
       // Fallback to localStorage only
       const savedImages: Record<string, string> = {};
       SITE_IMAGES.forEach(image => {
         const saved = localStorage.getItem(`site-image-${image.key}`);
         savedImages[image.key] = saved || image.defaultValue;
       });
+      console.log('💾 [SiteImageManager] Fallback images:', savedImages);
       setImageValues(savedImages);
     } finally {
       setLoading(false);
+      console.log('⏳ [SiteImageManager] Loading state: false');
     }
   };
 
@@ -313,7 +335,7 @@ export function SiteImageManager() {
       
       // Save to localStorage
       Object.entries(imageValues).forEach(([key, value]) => {
-        if (value) {
+        if (value && typeof value === 'string') {
           localStorage.setItem(`site-image-${key}`, value);
         } else {
           localStorage.removeItem(`site-image-${key}`);
@@ -498,8 +520,15 @@ export function SiteImageManager() {
       )}
 
       {/* Tabs por categoria */}
-      <Tabs defaultValue="migration" className="w-full">
-        <TabsList className="grid w-full grid-cols-6 bg-muted">
+      <Tabs defaultValue="simple" className="w-full">
+        <TabsList className="grid w-full grid-cols-7 bg-muted">
+          <TabsTrigger 
+            value="simple"
+            className="data-[state=active]:bg-emerald-400 data-[state=active]:text-black"
+          >
+            <Save className="w-4 h-4 mr-2" />
+            Simples
+          </TabsTrigger>
           <TabsTrigger 
             value="migration"
             className="data-[state=active]:bg-emerald-400 data-[state=active]:text-black"
@@ -528,6 +557,11 @@ export function SiteImageManager() {
             );
           })}
         </TabsList>
+
+        {/* Aba Simples */}
+        <TabsContent value="simple" className="space-y-6 mt-6">
+          <SimpleImageManager onImageChange={handleImageChange} />
+        </TabsContent>
 
         {/* Aba Migração */}
         <TabsContent value="migration" className="space-y-6 mt-6">

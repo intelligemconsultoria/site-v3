@@ -47,15 +47,24 @@ export function ImageManager({ onImageSelect }: ImageManagerProps) {
   }, [images, selectedCategory, searchTerm]);
 
   const loadImages = async () => {
+    console.log('🖼️ [ImageManager] loadImages() iniciado');
     try {
       setLoading(true);
+      console.log('⏳ [ImageManager] Loading state: true');
+      
+      console.log('📞 [ImageManager] Chamando imageService.getAllImages()...');
       const data = await imageService.getAllImages();
+      console.log('📊 [ImageManager] Dados recebidos:', data);
+      console.log('📊 [ImageManager] Quantidade de imagens:', data.length);
+      
       setImages(data);
+      console.log('✅ [ImageManager] Images state atualizado');
     } catch (error) {
+      console.error('❌ [ImageManager] Erro ao carregar imagens:', error);
       toast.error('Erro ao carregar imagens');
-      console.error(error);
     } finally {
       setLoading(false);
+      console.log('⏳ [ImageManager] Loading state: false');
     }
   };
 

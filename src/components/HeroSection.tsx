@@ -15,14 +15,14 @@ export function HeroSection() {
 
   useEffect(() => {
     // Load custom hero image from localStorage
-    const savedImage = localStorage.getItem('site-image-hero-decoration');
+    const savedImage = localStorage.getItem('site-image-hero-main');
     if (savedImage) {
       setHeroImage(savedImage);
     }
 
     // Listen for image updates
     const handleImageUpdate = (event: CustomEvent) => {
-      const newImage = event.detail['hero-decoration'];
+      const newImage = event.detail['hero-main'];
       if (newImage) {
         setHeroImage(newImage);
       }

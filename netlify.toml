@@ -39,3 +39,11 @@
   for = "*.css"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
+
+# Redireciona para remover o parâmetro fbclid da URL
+[[redirects]]
+  from = "/*"
+  to = "/:splat"
+  status = 301
+  force = true
+  conditions = {Query = ["fbclid"]}

@@ -13,9 +13,21 @@ export function MetaTags({
   description, 
   image, 
   url, 
-  type = 'article' 
+  type = 'website' 
 }: MetaTagsProps) {
   useEffect(() => {
+    // Valores padrão
+    const defaultTitle = 'IntelliGem Consultoria - Soluções Inteligentes em Tecnologia';
+    const defaultDescription = 'IntelliGem Consultoria oferece soluções inteligentes em tecnologia, automação de processos e análise de dados para empresas que buscam inovação e eficiência.';
+    const defaultImage = 'https://intelligemconsultoria.com.br/og-image.jpg';
+    const defaultUrl = 'https://intelligemconsultoria.com.br/';
+
+    // Usar valores fornecidos ou padrões
+    const finalTitle = title || defaultTitle;
+    const finalDescription = description || defaultDescription;
+    const finalImage = image || defaultImage;
+    const finalUrl = url || defaultUrl;
+
     // Função para atualizar ou criar meta tags
     const updateMetaTag = (property: string, content: string) => {
       let meta = document.querySelector(`meta[property="${property}"]`) as HTMLMetaElement;
@@ -39,42 +51,34 @@ export function MetaTags({
     };
 
     // Atualizar título da página
-    if (title) {
-      document.title = `${title} | IntelliGem`;
-    }
+    document.title = finalTitle;
 
     // Meta tags básicas
-    if (description) {
-      updateMetaName('description', description);
-    }
+    updateMetaName('description', finalDescription);
 
     // Open Graph tags (para LinkedIn, Facebook, etc.)
-    if (title) {
-      updateMetaTag('og:title', title);
-    }
-    if (description) {
-      updateMetaTag('og:description', description);
-    }
-    if (image) {
-      updateMetaTag('og:image', image);
-    }
-    if (url) {
-      updateMetaTag('og:url', url);
-    }
+    updateMetaTag('og:title', finalTitle);
+    updateMetaTag('og:description', finalDescription);
+    updateMetaTag('og:image', finalImage);
+    updateMetaTag('og:url', finalUrl);
     updateMetaTag('og:type', type);
-    updateMetaTag('og:site_name', 'IntelliGem');
+    updateMetaTag('og:site_name', 'IntelliGem Consultoria');
+    updateMetaTag('og:locale', 'pt_BR');
 
     // Twitter Card tags
     updateMetaName('twitter:card', 'summary_large_image');
-    if (title) {
-      updateMetaName('twitter:title', title);
+    updateMetaName('twitter:title', finalTitle);
+    updateMetaName('twitter:description', finalDescription);
+    updateMetaName('twitter:image', finalImage);
+
+    // Canonical URL
+    let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement;
+    if (!canonical) {
+      canonical = document.createElement('link');
+      canonical.setAttribute('rel', 'canonical');
+      document.head.appendChild(canonical);
     }
-    if (description) {
-      updateMetaName('twitter:description', description);
-    }
-    if (image) {
-      updateMetaName('twitter:image', image);
-    }
+    canonical.setAttribute('href', finalUrl);
 
   }, [title, description, image, url, type]);
 

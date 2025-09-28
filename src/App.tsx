@@ -23,6 +23,7 @@ import { MeetingsDashboard } from "./components/MeetingsDashboard";
 import { AdminDashboard } from "./components/AdminDashboard";
 import { Toaster } from "./components/ui/sonner";
 import { FloatingMeetingWidget } from "./components/FloatingMeetingWidget";
+import { MetaTags } from "./components/MetaTags";
 import gemFlowLogo from "figma:asset/5175adeec9ce8271bb85bf293b9214728409a71a.png";
 import gemInsightsLogo from "figma:asset/7dd46db1fefa5288c113180ade65c741fafebcce.png";
 import gemMindLogo from "figma:asset/c856949ab322f91d15b5aaecc11426c61fe0ed10.png";
@@ -274,6 +275,7 @@ function AppContent() {
 
   return (
     <div className="min-h-screen bg-background">
+      <MetaTags />
       <Header 
         onNavigateToAdmin={navigateToAdmin} 
         onNavigateToBlog={navigateToBlog}

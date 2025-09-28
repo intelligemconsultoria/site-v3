@@ -275,7 +275,6 @@ function AppContent() {
 
   return (
     <div className="min-h-screen bg-background">
-      <MetaTags />
       <Header 
         onNavigateToAdmin={navigateToAdmin} 
         onNavigateToBlog={navigateToBlog}

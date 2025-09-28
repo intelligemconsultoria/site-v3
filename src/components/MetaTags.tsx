@@ -50,8 +50,10 @@ export function MetaTags({
       meta.setAttribute('content', content);
     };
 
-    // Atualizar título da página
-    document.title = finalTitle;
+    // Atualizar título da página apenas se necessário
+    if (document.title !== finalTitle) {
+      document.title = finalTitle;
+    }
 
     // Meta tags básicas
     updateMetaName('description', finalDescription);

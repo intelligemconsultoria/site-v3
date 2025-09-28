@@ -55,22 +55,44 @@ export function RichTextEditor({
 
   // Effect para controlar barra flutuante baseada no scroll
   useEffect(() => {
+    let ticking = false;
+    
     const handleScroll = () => {
-      if (!toolbarRef.current || !editorRef.current) return;
-      
-      const toolbarRect = toolbarRef.current.getBoundingClientRect();
-      const editorRect = editorRef.current.getBoundingClientRect();
-      
-      // Se a barra de ferramentas saiu da área visível do editor, torna-a flutuante
-      const shouldFloat = toolbarRect.bottom < editorRect.top;
-      setIsToolbarFloating(shouldFloat);
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          if (!toolbarRef.current || !editorRef.current) {
+            ticking = false;
+            return;
+          }
+          
+          const toolbarRect = toolbarRef.current.getBoundingClientRect();
+          const editorRect = editorRef.current.getBoundingClientRect();
+          
+          // Adicionar margem para evitar flickering
+          const margin = 10;
+          const shouldFloat = toolbarRect.bottom < (editorRect.top - margin);
+          
+          // Só atualiza se realmente mudou o estado
+          setIsToolbarFloating(prev => {
+            if (prev !== shouldFloat) {
+              return shouldFloat;
+            }
+            return prev;
+          });
+          
+          ticking = false;
+        });
+        ticking = true;
+      }
     };
 
-    // Adicionar listener de scroll
+    // Adicionar listener de scroll com throttling
     window.addEventListener('scroll', handleScroll, { passive: true });
     
-    // Verificar posição inicial
-    handleScroll();
+    // Verificar posição inicial após um pequeno delay
+    setTimeout(() => {
+      handleScroll();
+    }, 100);
 
     return () => {
       window.removeEventListener('scroll', handleScroll);
@@ -261,10 +283,10 @@ export function RichTextEditor({
       {/* Toolbar */}
       <div 
         ref={toolbarRef}
-        className={`border-b border-border p-3 bg-card/50 backdrop-blur-sm transition-all duration-200 ${
+        className={`border-b border-border p-3 bg-card/50 backdrop-blur-sm transition-all duration-300 ease-in-out ${
           isToolbarFloating 
-            ? 'fixed top-4 left-1/2 transform -translate-x-1/2 z-50 rounded-lg shadow-lg border-2 border-emerald-400/20' 
-            : ''
+            ? 'fixed top-4 left-1/2 transform -translate-x-1/2 z-50 rounded-lg shadow-xl border-2 border-emerald-400/30 bg-card/80 backdrop-blur-md' 
+            : 'relative'
         }`}
       >
         <div className="flex items-center gap-1 flex-wrap">

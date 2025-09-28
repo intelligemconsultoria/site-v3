@@ -283,6 +283,9 @@ export function RichTextEditor({
 
   return (
     <div className={`border border-border rounded-lg overflow-hidden bg-card/30 ${className}`}>
+      {/* Espaçador para evitar tremor quando barra fica flutuante */}
+      {isToolbarFloating && <div className="h-[60px]" />}
+      
       {/* Toolbar */}
       <div 
         ref={toolbarRef}

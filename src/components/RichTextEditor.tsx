@@ -65,20 +65,23 @@ export function RichTextEditor({
             return;
           }
           
-          const toolbarRect = toolbarRef.current.getBoundingClientRect();
           const editorRect = editorRef.current.getBoundingClientRect();
+          const toolbarHeight = 60; // Altura aproximada da barra de ferramentas
           
-          // Adicionar margem para evitar flickering
-          const margin = 10;
-          const shouldFloat = toolbarRect.bottom < (editorRect.top - margin);
-          
-          // Só atualiza se realmente mudou o estado
-          setIsToolbarFloating(prev => {
-            if (prev !== shouldFloat) {
-              return shouldFloat;
+          // Lógica melhorada para transição suave
+          if (isToolbarFloating) {
+            // Se está flutuante, só volta ao normal quando o editor estiver bem visível
+            const shouldStayFloating = editorRect.top > (toolbarHeight + 20);
+            if (!shouldStayFloating) {
+              setIsToolbarFloating(false);
             }
-            return prev;
-          });
+          } else {
+            // Se não está flutuante, flutua quando o editor sair da área superior
+            const shouldFloat = editorRect.top < -20; // Margem para evitar flickering
+            if (shouldFloat) {
+              setIsToolbarFloating(true);
+            }
+          }
           
           ticking = false;
         });
@@ -97,7 +100,7 @@ export function RichTextEditor({
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
-  }, []);
+  }, [isToolbarFloating]);
 
   const executeCommand = useCallback((command: string, value?: string) => {
     document.execCommand(command, false, value);

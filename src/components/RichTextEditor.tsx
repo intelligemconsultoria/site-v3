@@ -43,13 +43,39 @@ export function RichTextEditor({
   minHeight = "400px"
 }: RichTextEditorProps) {
   const editorRef = useRef<HTMLDivElement>(null);
+  const toolbarRef = useRef<HTMLDivElement>(null);
   const [isLinkDialogOpen, setIsLinkDialogOpen] = useState(false);
   const [isImageDialogOpen, setIsImageDialogOpen] = useState(false);
   const [linkUrl, setLinkUrl] = useState('');
   const [linkText, setLinkText] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [imageAlt, setImageAlt] = useState('');
+  const [isToolbarFloating, setIsToolbarFloating] = useState(false);
   const isUpdatingFromProps = useRef(false);
+
+  // Effect para controlar barra flutuante baseada no scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!toolbarRef.current || !editorRef.current) return;
+      
+      const toolbarRect = toolbarRef.current.getBoundingClientRect();
+      const editorRect = editorRef.current.getBoundingClientRect();
+      
+      // Se a barra de ferramentas saiu da área visível do editor, torna-a flutuante
+      const shouldFloat = toolbarRect.bottom < editorRect.top;
+      setIsToolbarFloating(shouldFloat);
+    };
+
+    // Adicionar listener de scroll
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    
+    // Verificar posição inicial
+    handleScroll();
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
 
   const executeCommand = useCallback((command: string, value?: string) => {
     document.execCommand(command, false, value);
@@ -132,7 +158,7 @@ export function RichTextEditor({
       
       // Salva a posição do cursor se houver seleção ativa
       const selection = window.getSelection();
-      let range = null;
+      let range: Range | null = null;
       let cursorPosition = 0;
       
       if (selection && selection.rangeCount > 0 && editorRef.current.contains(selection.anchorNode)) {
@@ -145,8 +171,8 @@ export function RichTextEditor({
         );
         let node;
         while (node = walker.nextNode()) {
-          if (node === range.startContainer) {
-            cursorPosition += range.startOffset;
+          if (node === range?.startContainer) {
+            cursorPosition += range?.startOffset || 0;
             break;
           }
           cursorPosition += node.textContent?.length || 0;
@@ -233,7 +259,14 @@ export function RichTextEditor({
   return (
     <div className={`border border-border rounded-lg overflow-hidden bg-card/30 ${className}`}>
       {/* Toolbar */}
-      <div className="border-b border-border p-3 bg-card/50 backdrop-blur-sm">
+      <div 
+        ref={toolbarRef}
+        className={`border-b border-border p-3 bg-card/50 backdrop-blur-sm transition-all duration-200 ${
+          isToolbarFloating 
+            ? 'fixed top-4 left-1/2 transform -translate-x-1/2 z-50 rounded-lg shadow-lg border-2 border-emerald-400/20' 
+            : ''
+        }`}
+      >
         <div className="flex items-center gap-1 flex-wrap">
           {/* Heading Selector */}
           <Select onValueChange={insertHeading}>

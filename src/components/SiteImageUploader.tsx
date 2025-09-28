@@ -22,7 +22,7 @@ export function SiteImageUploader() {
       key: 'hero-decoration',
       name: 'Hero Section',
       description: 'Imagem principal da seção hero',
-      currentUrl: 'https://abfowubusomlibuihqrz.supabase.co/storage/v1/object/public/site-images-a91235ef/HERO.png'
+      currentUrl: 'https://abfowubusomlibuihqrz.supabase.co/storage/v1/object/public/site-images-a91235ef/HERO.png',
       status: 'pending'
     },
     {

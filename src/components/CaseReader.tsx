@@ -7,7 +7,6 @@ import { ArrowLeft, Calendar, Clock, Building, Target, TrendingUp, Share2, Check
 import { ThemeToggle } from "./ThemeToggle";
 import { casesService, CaseStudy } from "../services/casesServiceCompat";
 import { toast } from "sonner@2.0.3";
-import { MetaTags } from "./MetaTags";
 
 interface CaseReaderProps {
   slug: string;
@@ -173,14 +172,6 @@ export function CaseReader({ slug, onBack, onBackToCases }: CaseReaderProps) {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Meta Tags para SEO e compartilhamento */}
-      <MetaTags
-        title={caseStudy.title}
-        description={caseStudy.excerpt}
-        image={caseStudy.image_url}
-        url={`${window.location.origin}/case/${caseStudy.slug}`}
-        type="article"
-      />
       {/* Header minimalista com navegação */}
       <div className="bg-background/80 backdrop-blur-sm border-b border-border/50 sticky top-0 z-50">
         <div className="container mx-auto px-6 py-4">

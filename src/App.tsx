@@ -57,6 +57,16 @@ function AppContent() {
     } else if (path === '/gemmind') {
       console.log('✅ [App] Navegando para gemmind via URL');
       navigateToGemMind();
+    } else if (path.startsWith('/artigo/')) {
+      // Detectar artigo específico via URL
+      const slug = path.replace('/artigo/', '');
+      console.log('✅ [App] Navegando para artigo via URL:', slug);
+      navigateToArticle(slug);
+    } else if (path.startsWith('/case/')) {
+      // Detectar case específico via URL
+      const slug = path.replace('/case/', '');
+      console.log('✅ [App] Navegando para case via URL:', slug);
+      navigateToCase(slug);
     } else if (path === '/') {
       console.log('✅ [App] Navegando para home via URL');
       navigateToHome();
@@ -66,14 +76,17 @@ function AppContent() {
   const navigateToBlog = () => {
     window.scrollTo(0, 0);
     setCurrentPage('blog');
+    window.history.pushState({}, '', '/blog');
   };
   const navigateToHome = () => {
     window.scrollTo(0, 0);
     setCurrentPage('home');
+    window.history.pushState({}, '', '/');
   };
   const navigateToAdmin = () => {
     window.scrollTo(0, 0);
     setCurrentPage('admin');
+    window.history.pushState({}, '', '/admin');
   };
   const navigateToAdminDashboard = () => {
     window.scrollTo(0, 0);
@@ -87,6 +100,8 @@ function AppContent() {
     window.scrollTo(0, 0);
     setCurrentArticleSlug(slug);
     setCurrentPage('article');
+    // Atualizar URL do navegador
+    window.history.pushState({}, '', `/artigo/${slug}`);
   };
   const navigateToCases = () => {
     window.scrollTo(0, 0);
@@ -100,6 +115,8 @@ function AppContent() {
     window.scrollTo(0, 0);
     setCurrentCaseSlug(slug);
     setCurrentPage('case-detail');
+    // Atualizar URL do navegador
+    window.history.pushState({}, '', `/case/${slug}`);
   };
   
   const navigateToArticleEditor = (articleId?: string) => {

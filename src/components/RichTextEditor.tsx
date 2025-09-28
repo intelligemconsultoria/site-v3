@@ -524,11 +524,43 @@ export function RichTextEditor({
         
         .prose ul, .prose ol {
           margin: 0.5rem 0;
-          padding-left: 1.5rem;
+          padding-left: 0;
+          list-style: none;
         }
         
         .prose li {
-          margin: 0.25rem 0;
+          margin: 0.5rem 0;
+          padding-left: 2rem;
+          position: relative;
+        }
+        
+        .prose ul li::before {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 0.75rem;
+          width: 6px;
+          height: 6px;
+          background: linear-gradient(135deg, #31af9d, #136eae);
+          border-radius: 50%;
+        }
+        
+        .prose ol {
+          counter-reset: item;
+        }
+        
+        .prose ol li {
+          counter-increment: item;
+        }
+        
+        .prose ol li::before {
+          content: counter(item) '.';
+          position: absolute;
+          left: 0;
+          top: 0;
+          color: #31af9d;
+          font-weight: 600;
+          font-size: 0.9rem;
         }
         
         .prose img {

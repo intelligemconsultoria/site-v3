@@ -401,7 +401,7 @@ export function ArticleReader({ slug, onBack, onBackToBlog }: ArticleReaderProps
           font-size: 2.5rem;
           font-weight: 700;
           margin: 3rem 0 1.5rem 0;
-          color: var(--foreground);
+          color: var(--foreground) !important;
           line-height: 1.2;
           border-bottom: 2px solid var(--border);
           padding-bottom: 1rem;
@@ -411,7 +411,7 @@ export function ArticleReader({ slug, onBack, onBackToBlog }: ArticleReaderProps
           font-size: 2rem;
           font-weight: 600;
           margin: 2.5rem 0 1rem 0;
-          color: var(--foreground);
+          color: var(--foreground) !important;
           line-height: 1.3;
           position: relative;
         }
@@ -432,7 +432,7 @@ export function ArticleReader({ slug, onBack, onBackToBlog }: ArticleReaderProps
           font-size: 1.5rem;
           font-weight: 600;
           margin: 2rem 0 1rem 0;
-          color: var(--foreground);
+          color: var(--foreground) !important;
           line-height: 1.4;
         }
         

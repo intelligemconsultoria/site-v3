@@ -283,16 +283,16 @@ export function RichTextEditor({
 
   return (
     <div className={`border border-border rounded-lg overflow-hidden bg-card/30 ${className}`}>
-      {/* Espaçador fixo para evitar mudanças de layout */}
+      {/* Espaçador fixo para compensar barra sempre fixa */}
       <div className="h-[60px]" />
       
-      {/* Toolbar */}
+      {/* Toolbar sempre fixa para evitar reflow */}
       <div 
         ref={toolbarRef}
         className={`border-b border-border p-3 bg-card/50 backdrop-blur-sm transition-all duration-300 ease-in-out ${
           isToolbarFloating 
             ? 'fixed top-20 left-1/2 transform -translate-x-1/2 z-50 rounded-lg shadow-xl border-2 border-emerald-400/30 bg-card/80 backdrop-blur-md' 
-            : 'relative'
+            : 'fixed top-0 left-0 w-full z-40'
         }`}
       >
         <div className="flex items-center gap-1 flex-wrap">

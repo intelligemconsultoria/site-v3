@@ -71,13 +71,13 @@ export function RichTextEditor({
           // Lógica melhorada para transição suave
           if (isToolbarFloating) {
             // Se está flutuante, só volta ao normal quando o editor estiver bem visível
-            const shouldStayFloating = editorRect.top > (toolbarHeight + 20);
+            const shouldStayFloating = editorRect.top > (toolbarHeight + 40);
             if (!shouldStayFloating) {
               setIsToolbarFloating(false);
             }
           } else {
             // Se não está flutuante, flutua quando o editor sair da área superior
-            const shouldFloat = editorRect.top < -20; // Margem para evitar flickering
+            const shouldFloat = editorRect.top < -40; // Margem maior para evitar flickering
             if (shouldFloat) {
               setIsToolbarFloating(true);
             }
@@ -283,8 +283,8 @@ export function RichTextEditor({
 
   return (
     <div className={`border border-border rounded-lg overflow-hidden bg-card/30 ${className}`}>
-      {/* Espaçador para evitar tremor quando barra fica flutuante */}
-      {isToolbarFloating && <div className="h-[60px]" />}
+      {/* Espaçador fixo para evitar mudanças de layout */}
+      <div className="h-[60px]" />
       
       {/* Toolbar */}
       <div 

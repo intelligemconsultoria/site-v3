@@ -107,6 +107,9 @@ export function CaseReader({ slug, onBack, onBackToCases }: CaseReaderProps) {
   const formatMarkdownToHTML = (markdown: string) => {
     // Conversão simples de markdown para HTML
     return markdown
+      // Remover tags <font> com cores fixas que impedem adaptação ao tema
+      .replace(/<font[^>]*color=["'][^"']*["'][^>]*>/gi, '')
+      .replace(/<\/font>/gi, '')
       // Headers
       .replace(/^### (.*$)/gim, '<h3>$1</h3>')
       .replace(/^## (.*$)/gim, '<h2>$1</h2>')

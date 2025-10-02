@@ -20,9 +20,10 @@ import { toast } from "sonner@2.0.3";
 
 interface ImageManagerProps {
   onImageSelect?: (imageUrl: string) => void;
+  onImageUpload?: (file: File) => void;
 }
 
-export function ImageManager({ onImageSelect }: ImageManagerProps) {
+export function ImageManager({ onImageSelect, onImageUpload }: ImageManagerProps) {
   const [images, setImages] = useState<ImageData[]>([]);
   const [filteredImages, setFilteredImages] = useState<ImageData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -113,8 +114,15 @@ export function ImageManager({ onImageSelect }: ImageManagerProps) {
 
     try {
       setUploading(true);
-      await imageService.uploadImage(uploadForm.file, uploadForm.category);
-      toast.success('Imagem enviada com sucesso!');
+      
+      if (onImageUpload) {
+        // Se há callback de upload, usar ele
+        await onImageUpload(uploadForm.file);
+      } else {
+        // Fallback para o comportamento original
+        await imageService.uploadImage(uploadForm.file, uploadForm.category);
+        toast.success('Imagem enviada com sucesso!');
+      }
       
       // Reset form
       setUploadForm({ category: ImageCategories.GENERAL, file: null });

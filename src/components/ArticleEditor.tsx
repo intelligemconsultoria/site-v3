@@ -26,7 +26,8 @@ import {
   AlertCircle
 } from "lucide-react";
 import { blogService, BlogArticle } from "../services/blogServiceCompat";
-import { SupabaseImageUploader } from "./SupabaseImageUploader";
+import { ImageManager } from "./ImageManager";
+import { imageService } from "../services/imageService";
 import { ThemeToggle } from "./ThemeToggle";
 import { toast } from "sonner@2.0.3";
 
@@ -254,6 +255,18 @@ export function ArticleEditor({ articleId, onBack }: ArticleEditorProps) {
     handleInputChange('image_url', imageUrl);
     setIsImageUploaderOpen(false);
     toast.success('Imagem selecionada!');
+  };
+
+  const handleImageUpload = async (file: File) => {
+    try {
+      const imageUrl = await imageService.uploadImage(file, 'blog');
+      handleInputChange('image_url', imageUrl);
+      setIsImageUploaderOpen(false);
+      toast.success('Imagem enviada com sucesso!');
+    } catch (error) {
+      console.error('Erro ao fazer upload da imagem:', error);
+      toast.error('Erro ao enviar imagem');
+    }
   };
 
   if (loading) {
@@ -558,9 +571,9 @@ export function ArticleEditor({ articleId, onBack }: ArticleEditorProps) {
                 </Button>
               </div>
               
-              <SupabaseImageUploader
-                onImageUploaded={handleImageSelect}
-                folder="blog-articles"
+              <ImageManager
+                onImageSelect={handleImageSelect}
+                onImageUpload={handleImageUpload}
               />
             </div>
           </div>

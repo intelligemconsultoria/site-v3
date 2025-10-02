@@ -291,7 +291,7 @@ export function RichTextEditor({
         ref={toolbarRef}
         className={`border-b border-border p-3 bg-card/50 backdrop-blur-sm transition-all duration-300 ease-in-out ${
           isToolbarFloating 
-            ? 'fixed top-4 left-1/2 transform -translate-x-1/2 z-50 rounded-lg shadow-xl border-2 border-emerald-400/30 bg-card/80 backdrop-blur-md' 
+            ? 'fixed top-20 left-1/2 transform -translate-x-1/2 z-50 rounded-lg shadow-xl border-2 border-emerald-400/30 bg-card/80 backdrop-blur-md' 
             : 'relative'
         }`}
       >

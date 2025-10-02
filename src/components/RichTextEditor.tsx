@@ -68,16 +68,16 @@ export function RichTextEditor({
           const editorRect = editorRef.current.getBoundingClientRect();
           const toolbarHeight = 60; // Altura aproximada da barra de ferramentas
           
-          // Lógica melhorada para transição suave
+          // Lógica melhorada para transição suave com thresholds maiores
           if (isToolbarFloating) {
             // Se está flutuante, só volta ao normal quando o editor estiver bem visível
-            const shouldStayFloating = editorRect.top > (toolbarHeight + 40);
+            const shouldStayFloating = editorRect.top > (toolbarHeight + 100);
             if (!shouldStayFloating) {
               setIsToolbarFloating(false);
             }
           } else {
             // Se não está flutuante, flutua quando o editor sair da área superior
-            const shouldFloat = editorRect.top < -40; // Margem maior para evitar flickering
+            const shouldFloat = editorRect.top < -100; // Margem muito maior para evitar flickering
             if (shouldFloat) {
               setIsToolbarFloating(true);
             }
@@ -283,16 +283,16 @@ export function RichTextEditor({
 
   return (
     <div className={`border border-border rounded-lg overflow-hidden bg-card/30 ${className}`}>
-      {/* Espaçador fixo para compensar barra sempre fixa */}
-      <div className="h-[60px]" />
+      {/* Espaçador condicional para evitar mudanças de layout */}
+      {isToolbarFloating && <div className="h-[60px]" />}
       
-      {/* Toolbar sempre fixa para evitar reflow */}
+      {/* Toolbar */}
       <div 
         ref={toolbarRef}
-        className={`border-b border-border p-3 bg-card/50 backdrop-blur-sm transition-all duration-300 ease-in-out ${
+        className={`border-b border-border p-3 bg-card/50 backdrop-blur-sm transition-all duration-500 ease-out ${
           isToolbarFloating 
             ? 'fixed top-20 left-1/2 transform -translate-x-1/2 z-50 rounded-lg shadow-xl border-2 border-emerald-400/30 bg-card/80 backdrop-blur-md' 
-            : 'fixed top-0 left-0 w-full z-40'
+            : 'relative'
         }`}
       >
         <div className="flex items-center gap-1 flex-wrap">

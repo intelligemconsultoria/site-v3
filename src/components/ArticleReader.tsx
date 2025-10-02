@@ -142,7 +142,7 @@ export function ArticleReader({ slug, onBack, onBackToBlog }: ArticleReaderProps
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center max-w-md mx-auto px-6">
           <BookOpen className="w-16 h-16 text-foreground/30 mx-auto mb-4" />
-          <h1 className="text-2xl mb-4">Artigo não encontrado</h1>
+          <h1 className="text-2xl mb-4 text-foreground">Artigo não encontrado</h1>
           <p className="text-foreground/70 mb-6">{error}</p>
           <div className="flex gap-4 justify-center">
             <Button onClick={onBack} variant="outline">
@@ -210,7 +210,7 @@ export function ArticleReader({ slug, onBack, onBackToBlog }: ArticleReaderProps
           </div>
 
           {/* Título */}
-          <h1 className="text-4xl md:text-5xl lg:text-6xl mb-6 leading-tight max-w-4xl mx-auto">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl mb-6 leading-tight max-w-4xl mx-auto text-foreground">
             {article.title}
           </h1>
 

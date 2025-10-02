@@ -51,7 +51,49 @@ export function RichTextEditor({
   const [imageUrl, setImageUrl] = useState('');
   const [imageAlt, setImageAlt] = useState('');
   const [isToolbarFloating, setIsToolbarFloating] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragPosition, setDragPosition] = useState({ x: 0, y: 0 });
+  const [isDraggable, setIsDraggable] = useState(false);
   const isUpdatingFromProps = useRef(false);
+
+  // Funções para drag da barra de ferramentas
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!isDraggable || !isToolbarFloating) return;
+    e.preventDefault();
+    setIsDragging(true);
+    
+    const rect = toolbarRef.current?.getBoundingClientRect();
+    if (rect) {
+      setDragPosition({
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top
+      });
+    }
+  };
+
+  const handleMouseMove = (e: MouseEvent) => {
+    if (!isDragging || !isDraggable) return;
+    
+    const newX = e.clientX - dragPosition.x;
+    const newY = e.clientY - dragPosition.y;
+    
+    // Limitar movimento dentro da viewport
+    const maxX = window.innerWidth - (toolbarRef.current?.offsetWidth || 0);
+    const maxY = window.innerHeight - (toolbarRef.current?.offsetHeight || 0);
+    
+    const constrainedX = Math.max(0, Math.min(newX, maxX));
+    const constrainedY = Math.max(0, Math.min(newY, maxY));
+    
+    if (toolbarRef.current) {
+      toolbarRef.current.style.left = `${constrainedX}px`;
+      toolbarRef.current.style.top = `${constrainedY}px`;
+      toolbarRef.current.style.transform = 'none';
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
 
   // Effect para controlar barra flutuante de forma estável
   useEffect(() => {
@@ -81,6 +123,19 @@ export function RichTextEditor({
       clearTimeout(timeoutId);
     };
   }, [isToolbarFloating]);
+
+  // Effect para eventos de drag
+  useEffect(() => {
+    if (isDragging) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      
+      return () => {
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+      };
+    }
+  }, [isDragging, dragPosition]);
 
   const executeCommand = useCallback((command: string, value?: string) => {
     document.execCommand(command, false, value);
@@ -273,9 +328,24 @@ export function RichTextEditor({
           isToolbarFloating 
             ? 'fixed top-6 left-1/2 transform -translate-x-1/2 z-50 rounded-lg shadow-xl border-2 border-emerald-400/30 bg-card/90 backdrop-blur-md max-w-fit mx-auto' 
             : 'sticky top-0 z-10'
-        }`}
+        } ${isDragging ? 'cursor-grabbing' : (isDraggable && isToolbarFloating) ? 'cursor-grab' : ''}`}
+        onMouseDown={handleMouseDown}
+        style={isDragging ? { userSelect: 'none' } : {}}
       >
         <div className="flex items-center gap-1 flex-wrap">
+          {/* Botão para ativar/desativar drag */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setIsDraggable(!isDraggable)}
+            className={`h-8 w-8 p-0 ${isDraggable ? 'bg-emerald-400/20 text-emerald-400' : 'text-foreground/60 hover:text-foreground'}`}
+            title={isDraggable ? 'Desativar arrastar (só funciona quando flutuante)' : 'Ativar arrastar (só funciona quando flutuante)'}
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 6h8M8 10h8M8 14h8M8 18h8" />
+            </svg>
+          </Button>
+          
           {/* Heading Selector */}
           <Select onValueChange={insertHeading}>
             <SelectTrigger className="w-32 h-8 text-sm">

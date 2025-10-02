@@ -53,52 +53,32 @@ export function RichTextEditor({
   const [isToolbarFloating, setIsToolbarFloating] = useState(false);
   const isUpdatingFromProps = useRef(false);
 
-  // Effect para controlar barra flutuante baseada no scroll
+  // Effect para controlar barra flutuante de forma estável
   useEffect(() => {
-    let ticking = false;
+    let timeoutId: NodeJS.Timeout;
     
     const handleScroll = () => {
-      if (!ticking) {
-        requestAnimationFrame(() => {
-          if (!toolbarRef.current || !editorRef.current) {
-            ticking = false;
-            return;
-          }
-          
-          const editorRect = editorRef.current.getBoundingClientRect();
-          const toolbarHeight = 60; // Altura aproximada da barra de ferramentas
-          
-          // Lógica melhorada para transição suave com thresholds maiores
-          if (isToolbarFloating) {
-            // Se está flutuante, só volta ao normal quando o editor estiver bem visível
-            const shouldStayFloating = editorRect.top > (toolbarHeight + 100);
-            if (!shouldStayFloating) {
-              setIsToolbarFloating(false);
-            }
-          } else {
-            // Se não está flutuante, flutua quando o editor sair da área superior
-            const shouldFloat = editorRect.top < -100; // Margem muito maior para evitar flickering
-            if (shouldFloat) {
-              setIsToolbarFloating(true);
-            }
-          }
-          
-          ticking = false;
-        });
-        ticking = true;
-      }
+      // Debounce para evitar mudanças muito frequentes
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        if (!editorRef.current) return;
+        
+        const editorRect = editorRef.current.getBoundingClientRect();
+        
+        // Barra fica flutuante quando o editor sai completamente da tela (top < 0)
+        const shouldFloat = editorRect.top < 0;
+        
+        if (shouldFloat !== isToolbarFloating) {
+          setIsToolbarFloating(shouldFloat);
+        }
+      }, 50); // Debounce de 50ms
     };
 
-    // Adicionar listener de scroll com throttling
     window.addEventListener('scroll', handleScroll, { passive: true });
     
-    // Verificar posição inicial após um pequeno delay
-    setTimeout(() => {
-      handleScroll();
-    }, 100);
-
     return () => {
       window.removeEventListener('scroll', handleScroll);
+      clearTimeout(timeoutId);
     };
   }, [isToolbarFloating]);
 
@@ -283,16 +263,16 @@ export function RichTextEditor({
 
   return (
     <div className={`border border-border rounded-lg overflow-hidden bg-card/30 ${className}`}>
-      {/* Espaçador condicional para evitar mudanças de layout */}
+      {/* Espaçador para compensar barra flutuante */}
       {isToolbarFloating && <div className="h-[60px]" />}
       
-      {/* Toolbar */}
+      {/* Toolbar que muda entre sticky e fixed */}
       <div 
         ref={toolbarRef}
-        className={`border-b border-border p-3 bg-card/50 backdrop-blur-sm transition-all duration-500 ease-out ${
+        className={`border-b border-border p-3 bg-card/50 backdrop-blur-sm transition-all duration-200 ease-out ${
           isToolbarFloating 
-            ? 'fixed top-20 left-1/2 transform -translate-x-1/2 z-50 rounded-lg shadow-xl border-2 border-emerald-400/30 bg-card/80 backdrop-blur-md' 
-            : 'relative'
+            ? 'fixed top-6 left-1/2 transform -translate-x-1/2 z-50 rounded-lg shadow-xl border-2 border-emerald-400/30 bg-card/90 backdrop-blur-md max-w-fit mx-auto' 
+            : 'sticky top-0 z-10'
         }`}
       >
         <div className="flex items-center gap-1 flex-wrap">

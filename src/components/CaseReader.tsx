@@ -107,9 +107,6 @@ export function CaseReader({ slug, onBack, onBackToCases }: CaseReaderProps) {
   const formatMarkdownToHTML = (markdown: string) => {
     // Conversão simples de markdown para HTML
     return markdown
-      // Remover tags <font> com cores fixas que impedem adaptação ao tema
-      .replace(/<font[^>]*color=["'][^"']*["'][^>]*>/gi, '')
-      .replace(/<\/font>/gi, '')
       // Headers
       .replace(/^### (.*$)/gim, '<h3>$1</h3>')
       .replace(/^## (.*$)/gim, '<h2>$1</h2>')
@@ -158,7 +155,7 @@ export function CaseReader({ slug, onBack, onBackToCases }: CaseReaderProps) {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center max-w-md mx-auto px-6">
           <Building className="w-16 h-16 text-foreground/30 mx-auto mb-4" />
-          <h1 className="text-2xl mb-4 text-foreground">Case não encontrado</h1>
+          <h1 className="text-2xl mb-4">Case não encontrado</h1>
           <p className="text-foreground/70 mb-6">{error}</p>
           <div className="flex gap-4 justify-center">
             <Button onClick={onBack} variant="outline">
@@ -226,7 +223,7 @@ export function CaseReader({ slug, onBack, onBackToCases }: CaseReaderProps) {
           </div>
 
           {/* Título */}
-          <h1 className="text-4xl md:text-5xl lg:text-6xl mb-6 leading-tight max-w-4xl mx-auto text-foreground">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl mb-6 leading-tight max-w-4xl mx-auto">
             {caseStudy.title}
           </h1>
 
@@ -274,7 +271,7 @@ export function CaseReader({ slug, onBack, onBackToCases }: CaseReaderProps) {
               <CardContent className="p-6">
                 <div className="flex items-center gap-3 mb-4">
                   <Target className="w-5 h-5 text-red-400" />
-                  <h3 className="font-medium text-foreground">Desafio</h3>
+                  <h3 className="font-medium">Desafio</h3>
                 </div>
                 <p className="text-foreground/70 text-sm leading-relaxed">
                   {caseStudy.challenge}
@@ -287,7 +284,7 @@ export function CaseReader({ slug, onBack, onBackToCases }: CaseReaderProps) {
               <CardContent className="p-6">
                 <div className="flex items-center gap-3 mb-4">
                   <Zap className="w-5 h-5 text-emerald-400" />
-                  <h3 className="font-medium text-foreground">Solução</h3>
+                  <h3 className="font-medium">Solução</h3>
                 </div>
                 <p className="text-foreground/70 text-sm leading-relaxed">
                   {caseStudy.solution}
@@ -300,7 +297,7 @@ export function CaseReader({ slug, onBack, onBackToCases }: CaseReaderProps) {
               <CardContent className="p-6">
                 <div className="flex items-center gap-3 mb-4">
                   <Award className="w-5 h-5 text-blue-400" />
-                  <h3 className="font-medium text-foreground">Principais Resultados</h3>
+                  <h3 className="font-medium">Principais Resultados</h3>
                 </div>
                 <div className="space-y-2">
                   {caseStudy.results.slice(0, 3).map((result, index) => (
@@ -461,7 +458,7 @@ export function CaseReader({ slug, onBack, onBackToCases }: CaseReaderProps) {
           font-size: 2.5rem;
           font-weight: 700;
           margin: 3rem 0 1.5rem 0;
-          color: var(--foreground) !important;
+          color: var(--foreground);
           line-height: 1.2;
           border-bottom: 2px solid var(--border);
           padding-bottom: 1rem;
@@ -471,7 +468,7 @@ export function CaseReader({ slug, onBack, onBackToCases }: CaseReaderProps) {
           font-size: 2rem;
           font-weight: 600;
           margin: 2.5rem 0 1rem 0;
-          color: var(--foreground) !important;
+          color: var(--foreground);
           line-height: 1.3;
           position: relative;
         }
@@ -492,7 +489,7 @@ export function CaseReader({ slug, onBack, onBackToCases }: CaseReaderProps) {
           font-size: 1.5rem;
           font-weight: 600;
           margin: 2rem 0 1rem 0;
-          color: var(--foreground) !important;
+          color: var(--foreground);
           line-height: 1.4;
         }
         

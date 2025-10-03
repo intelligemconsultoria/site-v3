@@ -779,6 +779,46 @@ export function CaseEditor({ caseId, onBack }: CaseEditorProps) {
                     }
                   />
                 </div>
+                
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm">Impacto Mensurado</Label>
+                  <Switch
+                    checked={!!formData.showMetrics}
+                    onCheckedChange={(checked) => 
+                      handleInputChange('showMetrics', checked)
+                    }
+                  />
+                </div>
+                
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm">Card Desafio</Label>
+                  <Switch
+                    checked={!!formData.showChallenge}
+                    onCheckedChange={(checked) => 
+                      handleInputChange('showChallenge', checked)
+                    }
+                  />
+                </div>
+                
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm">Card Solução</Label>
+                  <Switch
+                    checked={!!formData.showSolution}
+                    onCheckedChange={(checked) => 
+                      handleInputChange('showSolution', checked)
+                    }
+                  />
+                </div>
+                
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm">Card Principais Resultados</Label>
+                  <Switch
+                    checked={!!formData.showResults}
+                    onCheckedChange={(checked) => 
+                      handleInputChange('showResults', checked)
+                    }
+                  />
+                </div>
               </CardContent>
             </Card>
           </div>

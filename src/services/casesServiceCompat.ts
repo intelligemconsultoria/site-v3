@@ -20,6 +20,10 @@ export interface CaseStudy {
     timeframe: string;
     roi: string;
   };
+  showMetrics?: boolean; // Controla se a seção de métricas deve ser exibida
+  showChallenge?: boolean; // Controla se o card Desafio deve ser exibido
+  showSolution?: boolean; // Controla se o card Solução deve ser exibido
+  showResults?: boolean; // Controla se o card Principais Resultados deve ser exibido
   slug: string;
   published: boolean;
   featured: boolean;

@@ -22,7 +22,11 @@ export function CasesSection({ onNavigateToCases, onReadCase }: CasesSectionProp
     try {
       setLoading(true);
       const featuredCases = await casesService.getFeaturedCases();
-      setCases(featuredCases.slice(0, 3)); // Mostrar até 3 cases em destaque
+      // Pegar até 3 cases em destaque, ou os 3 mais recentes se não houver destacados
+      const casesToShow = featuredCases.length > 0 
+        ? featuredCases.slice(0, 3)
+        : (await casesService.getPublishedCases()).slice(0, 3);
+      setCases(casesToShow);
     } catch (error) {
       console.error("Erro ao carregar cases:", error);
       // Em caso de erro, usar dados padrão vazios

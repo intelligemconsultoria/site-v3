@@ -14,6 +14,10 @@ export interface CaseStudy {
   image_url: string; // Mudança para match com DB
   category: 'GemFlow' | 'GemInsights' | 'GemMind';
   metrics: Record<string, any>; // Mudança para JSONB
+  showMetrics?: boolean; // Controla se a seção de métricas deve ser exibida
+  showChallenge?: boolean; // Controla se o card Desafio deve ser exibido
+  showSolution?: boolean; // Controla se o card Solução deve ser exibido
+  showResults?: boolean; // Controla se o card Principais Resultados deve ser exibido
   slug: string;
   published: boolean;
   featured: boolean;
@@ -133,6 +137,10 @@ O sucesso deste projeto abriu caminho para:
           timeframe: '8 meses',
           roi: '+400%'
         },
+        showMetrics: true,
+        showChallenge: true,
+        showSolution: true,
+        showResults: true,
         slug: 'transformacao-digital-varejo-roi',
         published: true,
         featured: true,
@@ -239,6 +247,10 @@ O sucesso levou a novos projetos:
           timeframe: '12 meses',
           roi: '+350%'
         },
+        showMetrics: true,
+        showChallenge: true,
+        showSolution: true,
+        showResults: true,
         slug: 'ia-preditiva-industria-falhas',
         published: true,
         featured: true,
@@ -361,6 +373,10 @@ O projeto abriu caminho para:
           timeframe: '10 meses',
           roi: '+250%'
         },
+        showMetrics: true,
+        showChallenge: true,
+        showSolution: true,
+        showResults: true,
         slug: 'automacao-bancaria-processos-digitalizados',
         published: true,
         featured: false,
